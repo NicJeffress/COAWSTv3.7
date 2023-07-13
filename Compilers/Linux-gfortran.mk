@@ -33,7 +33,7 @@
 # First the defaults
 #
                FC := gfortran
-           FFLAGS := -frepack-arrays -fallow-argument-mismatch
+           FFLAGS := -frepack-arrays
        FIXEDFLAGS := -ffixed-form
         FREEFLAGS := -ffree-form -ffree-line-length-none
               CPP := /usr/bin/cpp

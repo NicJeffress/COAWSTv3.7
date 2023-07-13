@@ -108,7 +108,7 @@ GridsInLayer =  1
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-      NtileI == 1                                ! I-direction partition
+      NtileI == 3                                ! I-direction partition
       NtileJ == 1                                ! J-direction partition
 
 ! Set horizontal and vertical advection schemes for active and inert
@@ -1096,19 +1096,19 @@ Dout(iTvdif) == F F     ! temp_vdiff, ...    vertical diffusion
 
 ! Output NetCDF file names, [1:Ngrids].
 
-     DAINAME == ocean_dai.nc
-     GSTNAME == ocean_gst.nc
-     RSTNAME == ocean_rst.nc 
-     HISNAME == ocean_his_coupled.nc
-     QCKNAME == ocean_qck.nc
-     TLMNAME == ocean_tlm.nc
-     TLFNAME == ocean_tlf.nc
-     ADJNAME == ocean_adj.nc
-     AVGNAME == ocean_avg_coupled.nc
-     HARNAME == ocean_har.nc
-     DIANAME == ocean_dia.nc
-     STANAME == ocean_sta.nc
-     FLTNAME == ocean_flt.nc
+     DAINAME == Projects/Inlet_test/Coupled/output/ocean_dai.nc
+     GSTNAME == Projects/Inlet_test/Coupled/output/ocean_gst.nc
+     RSTNAME == Projects/Inlet_test/Coupled/output/ocean_rst.nc 
+     HISNAME == Projects/Inlet_test/Coupled/output/ocean_his_coupled.nc
+     QCKNAME == Projects/Inlet_test/Coupled/output/ocean_qck.nc
+     TLMNAME == Projects/Inlet_test/Coupled/output/ocean_tlm.nc
+     TLFNAME == Projects/Inlet_test/Coupled/output/ocean_tlf.nc
+     ADJNAME == Projects/Inlet_test/Coupled/output/ocean_adj.nc
+     AVGNAME == Projects/Inlet_test/Coupled/output/ocean_avg_coupled.nc
+     HARNAME == Projects/Inlet_test/Coupled/output/ocean_har.nc
+     DIANAME == Projects/Inlet_test/Coupled/output/ocean_dia.nc
+     STANAME == Projects/Inlet_test/Coupled/output/ocean_sta.nc
+     FLTNAME == Projects/Inlet_test/Coupled/output/ocean_flt.nc
 
 ! Input ASCII parameter filenames.
 

@@ -39,8 +39,8 @@
 
   NnodesATM =  0                     ! atmospheric model
   NnodesWAV =  1                     ! wave model
-  NnodesOCN =  1                     ! ocean model
-  NnodesHYD =  18                    ! hydrology model
+  NnodesOCN =  3                     ! ocean model
+  NnodesHYD =  0                    ! hydrology model
   NnodesHYD =  0                    ! hydrology model
 
 ! Time interval (seconds) between exchange of fields between models.
@@ -58,8 +58,8 @@
 ! The Wav program needs multiple input files, one for each grid.
 
    ATM_name = namelist.input                                      ! WRF input file
-   WAV_name = Projects/Inlet_test/Coupled/swan_inlet_test.in      ! wave model
-   OCN_name = Projects/Inlet_test/Coupled/ocean_inlet_test.in     ! ocean model
+   WAV_name = /hpc/home/nsj9/COAWSTv3.7/Projects/Inlet_test/Coupled/swan_inlet_test.in      ! wave model
+   OCN_name = /hpc/home/nsj9/COAWSTv3.7/Projects/Inlet_test/Coupled/ocean_inlet_test.in     ! ocean model
    HYD_name = hydro.namelist                              ! hydro model
 
 ! Sparse matrix interpolation weights files. You have 2 options:

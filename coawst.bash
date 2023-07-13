@@ -129,8 +129,8 @@ export   ROMS_APPLICATION=${COAWST_APPLICATION}
 
 # Set a local environmental variable to define the path to the directories
 # where all this project's files are kept.
-export   MY_ROOT_DIR=/cygdrive/e/data/models/COAWST
-export   MY_PROJECT_DIR=${MY_ROOT_DIR}
+export   MY_ROOT_DIR=/hpc/home/nsj9/COAWSTv3.7
+export   MY_PROJECT_DIR=/hpc/home/nsj9/COAWSTv3.7/Projects/Inlet_test/Coupled
 
 # The path to the user's local current ROMS source code.
 # If using svn locally, this would be the user's Working Copy Path (WCPATH).
@@ -209,8 +209,8 @@ export   NETCDF_CONFIG=/usr/bin/nf-config
 
 #export        USE_OpenMP=on            # shared-memory parallelism
 
- export              FORT=ifort
-#export              FORT=gfortran
+#export              FORT=ifort
+export              FORT=gfortran
 #export              FORT=pgi
 
  export         USE_DEBUG=              # use Fortran debugging flags
@@ -452,21 +452,21 @@ fi
 # customized biology model header file (like fennel.h, nemuro.h, ecosim.h,
 # etc).
 
-#  export     MY_HEADER_DIR=${MY_PROJECT_DIR}/ROMS/Include
-#  export MY_ANALYTICAL_DIR=${MY_PROJECT_DIR}/ROMS/Functionals
-   export     MY_HEADER_DIR=${MY_PROJECT_DIR}/Projects/Inlet_test/Coupled
-   export MY_ANALYTICAL_DIR=${MY_PROJECT_DIR}/Projects/Inlet_test/Coupled
+  export     MY_HEADER_DIR=${MY_PROJECT_DIR}
+  export MY_ANALYTICAL_DIR=${MY_PROJECT_DIR}
+#   export     MY_HEADER_DIR=${MY_PROJECT_DIR}/Projects/Inlet_test/Coupled
+#   export MY_ANALYTICAL_DIR=${MY_PROJECT_DIR}/Projects/Inlet_test/Coupled
 
 # Put the binary to execute in the following directory.
 
-# export            BINDIR=${MY_PROJECT_DIR}
-  export            BINDIR=./
+ export            BINDIR=${MY_PROJECT_DIR}
+#  export            BINDIR=./
 
 # Put the f90 files in a project specific Build directory to avoid conflict
 # with other projects.
 
-# export       SCRATCH_DIR=${MY_PROJECT_DIR}/Build
-  export       SCRATCH_DIR=./Build
+ export       SCRATCH_DIR=${MY_PROJECT_DIR}/Build
+#  export       SCRATCH_DIR=./Build
 
 # Go to the users source directory to compile. The options set above will
 # pick up the application-specific code from the appropriate place.
