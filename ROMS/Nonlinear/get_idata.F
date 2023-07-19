@@ -68,7 +68,7 @@
 
       real(r8) :: Fmin, Fmax, Htime
 #endif
-      real(dp) :: time_save = 0.0_dp
+      real(r8) :: time_save = 0.0_r8
 !
       character (len=*), parameter :: MyFile =                          &
      &  __FILE__
@@ -129,7 +129,7 @@
       IF (LprocessTides(ng)) THEN
         IF (iic(ng).eq.0) THEN
           time_save=time(ng)
-          time(ng)=8640000.0_dp
+          time(ng)=8640000.0_r8
           tdays(ng)=time(ng)*sec2day
 
           CALL get_2dfld (ng, iNLM, idTzam, TIDE(ng)%ncid,              &
@@ -163,7 +163,7 @@
       IF (LprocessTides(ng)) THEN
         IF (iic(ng).eq.0) THEN
           time_save=time(ng)
-          time(ng)=8640000.0_dp
+          time(ng)=8640000.0_r8
           tdays(ng)=time(ng)*sec2day
 
           CALL get_2dfld (ng, iNLM, idTvan, TIDE(ng)%ncid,              &
@@ -493,7 +493,7 @@
       IF (.not.(RefinedGrid(ng).and.RefineScale(ng).gt.0)) THEN
         IF (iic(ng).eq.0) THEN
           time_save=time(ng)
-          time(ng)=8640000.0_dp
+          time(ng)=8640000.0_r8
           tdays(ng)=time(ng)*sec2day
           CALL get_2dfld (ng, iNLM, idTpam, TIDE(ng)%ncid,              &
      &                    1, TIDE(ng), update(1),                       &

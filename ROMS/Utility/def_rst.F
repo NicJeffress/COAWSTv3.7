@@ -23,6 +23,9 @@
 #ifdef BIOLOGY
       USE mod_biology
 #endif
+#if defined ESTUARYBGC && defined SAV_BIOMASS
+      USE mod_biology
+#endif 
 #ifdef VEGETATION
       USE mod_vegetation
       USE mod_vegarr
@@ -390,14 +393,14 @@
 !
 !  Define dimensions for the plant array variables
 !
-!#if !defined PERFECT_RESTART && defined VEGETATION
+#if !defined PERFECT_RESTART && defined VEGETATION
 # if defined VEG_DRAG || defined VEG_BIOMASS
         v3pgrd(1)=DimIDs( 1)
         v3pgrd(2)=DimIDs( 5)
         v3pgrd(3)=DimIDs(35)
         v3pgrd(4)=DimIDs(12)
 # endif
-!#endif
+#endif
 #ifdef INWAVE_MODEL
 !
 !  Define dimension vector for energy wave layer type variables.
@@ -739,7 +742,92 @@
 #endif
 !
 #if defined VEGETATION 
-#include "vegetation_def_rst.h"
+# include "vegetation_def_rst.h"
+#endif
+!
+#if defined ESTUARYBGC && defined SAV_BIOMASS
+!  Define agb.
+!
+        Vinfo( 1)=Vname(1,idsagb)
+        Vinfo( 2)=Vname(2,idsagb)
+        Vinfo( 3)=Vname(3,idsagb)
+        Vinfo(14)=Vname(4,idsagb)
+        Vinfo(16)=Vname(1,idtime)
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idsagb,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idsagb),     &
+     &                 NF_FRST, nvd4, t2dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+# else
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idsagb),     &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+# endif
+        IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
+!
+!  Define bgb.
+!
+        Vinfo( 1)=Vname(1,idsbgb)
+        Vinfo( 2)=Vname(2,idsbgb)
+        Vinfo( 3)=Vname(3,idsbgb)
+        Vinfo(14)=Vname(4,idsbgb)
+        Vinfo(16)=Vname(1,idtime)
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idsbgb,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idsbgb),     &
+     &                 NF_FRST, nvd4, t2dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+# else
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idsbgb),     &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+# endif
+        IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
+!
+!  Define epb.
+!
+        Vinfo( 1)=Vname(1,idsepb)
+        Vinfo( 2)=Vname(2,idsepb)
+        Vinfo( 3)=Vname(3,idsepb)
+        Vinfo(14)=Vname(4,idsepb)
+        Vinfo(16)=Vname(1,idtime)
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idsepb,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idsepb),     &
+     &                 NF_FRST, nvd4, t2dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+# else
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idsepb),     &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+# endif
+        IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
+!
+!  Define dinsed
+!
+        Vinfo( 1)=Vname(1,iddins)
+        Vinfo( 2)=Vname(2,iddins)
+        Vinfo( 3)=Vname(3,iddins)
+        Vinfo(14)=Vname(4,iddins)
+        Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+        Vinfo(20)='mask_rho'
+# endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,iddins,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(iddins),     &
+     &                 NF_FRST, nvd4, t3dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+# else
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(iddins),     &
+     &                 NF_FRST, nvd4, t3dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+# endif
+        IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
 #endif
 !
 #if defined SEDIMENT && defined SED_MORPH
@@ -2041,6 +2129,7 @@
         END DO
 #  endif
 #endif 
+
 !
 !  Check if initialization variables are available in input NetCDF
 !  file.

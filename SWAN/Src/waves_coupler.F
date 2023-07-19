@@ -183,17 +183,8 @@
       integer :: cid, cad, MXCGLc
       character (len=70)  :: nc_name
       character (len=20)  :: to_add
-# ifdef SPECTRUM_STOKES
-      character (len=520) :: wostring
-      character (len=140) :: owstring
-# else
       character (len=120) :: wostring
       character (len=120) :: owstring
-# endif
-# ifdef SPECTRUM_STOKES
-      character (len=5)   :: LSTCODE
-      integer             :: IZ
-# endif
 
       real :: cff
 
@@ -535,8 +526,10 @@
       write(wostring(cid:cid+cad-1),'(a)') to_add(1:cad)
       cid=cid+cad
 !
-#if defined VEGETATION && defined VEG_SWAN_COUPLING \
-      && defined VEG_STREAMING
+!#if defined VEGETATION && defined VEG_SWAN_COUPLING \
+!      && defined VEG_STREAMING
+#if defined VEGETATION && defined VEG_SWAN_COUPLING 
+!      && defined VEG_STREAMING
       to_add=':DISVEG'
       cad=LEN_TRIM(to_add)
       write(wostring(cid:cid+cad-1),'(a)') to_add(1:cad)
@@ -546,43 +539,6 @@
       cad=LEN_TRIM(to_add)
       write(wostring(cid:cid+cad-1),'(a)') to_add(1:cad)
       cid=cid+cad
-#endif
-#ifdef SPECTRUM_STOKES
-      DO IZ=1,MSC
-        IF (IZ.LT.10) THEN
-         WRITE(LSTCODE,"(A4,I1)") ":KS0",IZ
-        ELSE
-         WRITE(LSTCODE,"(A3,I2)") ":KS",IZ 
-        END IF
-        to_add=LSTCODE
-        cad=LEN_TRIM(to_add)
-        write(wostring(cid:cid+cad-1),'(a)') to_add(1:cad)
-        cid=cid+cad  
-      END DO
-
-      DO IZ=1,MSC
-        IF (IZ.LT.10) THEN
-         WRITE(LSTCODE,"(A4,I1)") ":US0",IZ
-        ELSE
-         WRITE(LSTCODE,"(A3,I2)") ":US",IZ 
-        END IF
-        to_add=LSTCODE
-        cad=LEN_TRIM(to_add)
-        write(wostring(cid:cid+cad-1),'(a)') to_add(1:cad)
-        cid=cid+cad  
-      END DO
-
-      DO IZ=1,MSC
-        IF (IZ.LT.10) THEN
-         WRITE(LSTCODE,"(A4,I1)") ":VS0",IZ
-        ELSE
-         WRITE(LSTCODE,"(A3,I2)") ":VS",IZ 
-        END IF
-        to_add=LSTCODE
-        cad=LEN_TRIM(to_add)
-        write(wostring(cid:cid+cad-1),'(a)') to_add(1:cad)
-        cid=cid+cad  
-      END DO
 #endif  
 !
 !  Finalize and remove trailing spaces from the wostring
@@ -770,9 +726,6 @@
 
 # ifdef ROMS_COUPLING
       SUBROUTINE WAV2OCN_COUPLING (MIP, NVOQP, VOQR, VOQ, IRQ,          &
-# ifdef SPECTRUM_STOKES
-     &                             KSS, USS, VSS,                       &
-# endif
      &                             IVTYPE, COMPDA, Numcouple, ng, io)
 !
 !=======================================================================
@@ -824,11 +777,6 @@
 
       real :: COMPDA(MCGRD,MCMVAR)
       real :: VOQ(MIP,NVOQP)
-# ifdef SPECTRUM_STOKES
-      real :: KSS(MIP,MSC)
-      real :: USS(MIP,MSC)
-      real :: VSS(MIP,MSC)
-# endif
 !
 !  Local variable declarations.
 !
@@ -837,10 +785,7 @@
       integer :: Istr, Iend, Jstr, Jend, MXCGLc, start
       integer :: Isize, Jsize, INDXG, NPROCS, OFFSET
       integer, pointer :: points(:)
-# ifdef SPECTRUM_STOKES
-      character (len=4) :: SCODE
-      integer :: IZ
-# endif
+
       real(m8), pointer :: avdata(:)
       real(m8), pointer :: DIRE(:)
       real(m8), pointer :: DIRN(:)
@@ -992,62 +937,17 @@
         CALL AttrVect_importRAttr (AttrVect_G(ng)%wav2ocn_AV,           &
      &                             "WQP",avdata)
 !
-# if defined VEGETATION && defined VEG_SWAN_COUPLING \
-      && defined VEG_STREAMING      
+!#if defined VEGETATION && defined VEG_SWAN_COUPLING \
+!      && defined VEG_STREAMING      
+#if defined VEGETATION && defined VEG_SWAN_COUPLING 
+!      && defined VEG_STREAMING      
       ELSE IF (IVTYPE.eq.57) THEN
         CALL AttrVect_importRAttr (AttrVect_G(ng)%wav2ocn_AV,           &
      &                             "DISVEG",avdata)
       ELSE IF (IVTYPE.eq.80) THEN
         CALL AttrVect_importRAttr (AttrVect_G(ng)%wav2ocn_AV,           &
      &                             "DICDVG",avdata)
-# endif   
-# ifdef SPECTRUM_STOKES
-      ELSE IF (IVTYPE.eq.81) THEN
-        DO IZ=1,MSC
-          IF (IZ.LT.10) THEN
-            WRITE(SCODE,"(A3,I1)") "KS0",IZ
-          ELSE
-            WRITE(SCODE,"(A2,I2)") "KS", IZ
-          END IF
-
-          DO IP=1,gsmsize
-            avdata(IP)= REAL(KSS(points(IP),IZ), m8)
-          END DO
-
-          CALL AttrVect_importRAttr (AttrVect_G(ng)%wav2ocn_AV,         &
-     &                             SCODE,avdata)
-        END DO
-
-        DO IZ=1,MSC
-          IF (IZ.LT.10) THEN
-            WRITE(SCODE,"(A3,I1)") "US0",IZ
-          ELSE
-            WRITE(SCODE,"(A2,I2)") "US", IZ
-          END IF
-
-          DO IP=1,gsmsize
-            avdata(IP)= REAL(USS(points(IP),IZ), m8)
-          END DO
-
-          CALL AttrVect_importRAttr (AttrVect_G(ng)%wav2ocn_AV,         &
-     &                             SCODE,avdata)
-        END DO
-
-        DO IZ=1,MSC
-          IF (IZ.LT.10) THEN
-            WRITE(SCODE,"(A3,I1)") "VS0",IZ
-          ELSE
-            WRITE(SCODE,"(A2,I2)") "VS", IZ
-          END IF
-
-          DO IP=1,gsmsize
-            avdata(IP)= REAL(VSS(points(IP),IZ), m8)
-          END DO
-
-          CALL AttrVect_importRAttr (AttrVect_G(ng)%wav2ocn_AV,         &
-     &                             SCODE,avdata)
-        END DO
-# endif
+#endif   
       END IF
 !
       IF (IRQ.eq.Numcouple) THEN
@@ -1322,7 +1222,12 @@
       integer :: idruf, idice
       integer, dimension(MPI_STATUS_SIZE,4) :: status
 
-      real :: cff, cff2
+      real :: cff
+      real :: cff2
+!edited by Nic Jeffress 12/5
+!# if !defined BBL_MODEL
+!      real :: cff2
+!# endif
       real, parameter ::  Large = 1.0E+20
       real, dimension(2) :: range
       real(m8), pointer :: avdata(:)
@@ -1604,7 +1509,7 @@
         CALL SWREDUCE(range(1),1,SWREAL,SWMIN)
         CALL SWREDUCE(range(2),1,SWREAL,SWMAX)
         IF (MyRank.eq.0) THEN
-          write(SCREEN,40) 'ROMStoSWAN Min/Max VEGDENS (indv/m-2): ',   &
+          write(SCREEN,40) 'ROMStoSWAN Min/Max VEGDENS(stms/m2): ',     &
      &                      range(1),range(2)
         END IF
 !
@@ -1953,6 +1858,10 @@
 ! If not using a BBL model, then determine the non-spatially 
 ! varying friction coeff to enter into the JFRC2 array.
 !
+!Edited here by NJ Nic Jeffress 12/6/22
+!this was the old line
+!# if defined WAVES_OCEAN && !defined BBL_MODEL
+! this is the new line
 # if defined WAVES_OCEAN
         cff2=0.05_m8                  ! default
         IF (IBOT.EQ.1) THEN           ! Jonswap
@@ -1962,20 +1871,21 @@
         ELSE IF (IBOT.EQ.3) THEN      ! Madsen
           cff2=PBOT(5)
         END IF
+# endif
         IP=0
         DO IY=1,MYC
           DO IX=1,MXC
             IP=IP+1
             INDX = KGRPNT(IX,IY)
             IF (INDX.GT.1) THEN
+# ifdef WAVES_OCEAN
 #  ifdef BBL_MODEL
+!#edited here by Nic J NJ 12/6
               IF (io.eq.1) THEN
-!               COMPDA(INDX,JFRC2)=MAX(REAL(TEMPMCT(IP,idruf)), 0.0001)
-                COMPDA(INDX,JFRC2)=MAX(REAL(TEMPMCT(IP,idruf)), cff2)
+                COMPDA(INDX,JFRC2)=MAX(REAL(TEMPMCT(IP,idruf)), 0.0001, cff2)
               ELSE
                 COMPDA(INDX,JFRC2)=COMPDA(INDX,JFRC2)+                  &
-     &                             MAX(REAL(TEMPMCT(IP,idruf)), cff2)
-!    &                             MAX(REAL(TEMPMCT(IP,idruf)), 0.0001)
+     &                             MAX(REAL(TEMPMCT(IP,idruf)), 0.0001, cff2)
               END IF
 #  else
               COMPDA(INDX,JFRC2)=cff2

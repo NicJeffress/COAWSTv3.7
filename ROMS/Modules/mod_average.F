@@ -599,12 +599,10 @@
         allocate ( AVERAGE(ng) % avgAKt(LBi:UBi,LBj:UBj,0:N(ng)) )
         Dmem(ng)=Dmem(ng)+REAL(N(ng)+1,r8)*size2d
       END IF
-#   ifdef SALINITY
       IF (Aout(idSdif,ng)) THEN
         allocate ( AVERAGE(ng) % avgAKs(LBi:UBi,LBj:UBj,0:N(ng)) )
         Dmem(ng)=Dmem(ng)+REAL(N(ng)+1,r8)*size2d
       END IF
-#   endif
 #  endif
 #  ifdef TS_VAR
 !      IF (Aout(idVvis,ng)) THEN
@@ -1334,7 +1332,6 @@
           END DO
         END DO
       END IF
-#   ifdef SALINITY
       IF (Aout(idSdif,ng)) THEN
         DO k=0,N(ng)
           DO j=Jmin,Jmax
@@ -1344,7 +1341,6 @@
           END DO
         END DO
       END IF
-#   endif
 #  endif
 
 #  ifdef TS_VAR

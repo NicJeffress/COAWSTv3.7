@@ -37,6 +37,9 @@
       USE mod_coupling
       USE mod_grid
       USE mod_ocean
+# if defined SEDIMENT && defined SED_MORPH
+      USE mod_sedbed
+# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -61,6 +64,9 @@
 # ifdef ICESHELF
      &                     GRID(ng) % zice,                             &
 # endif
+# if defined SEDIMENT && defined SED_MORPH
+     &                     SEDBED(ng) % bed_thick,                      &
+# endif
      &                     COUPLING(ng) % Zt_avg1,                      &
      &                     GRID(ng) % Hz,                               &
      &                     GRID(ng) % z_r,                              &
@@ -80,6 +86,9 @@
      &                           h,                                     &
 # ifdef ICESHELF
      &                           zice,                                  &
+# endif
+# if defined SEDIMENT && defined SED_MORPH
+     &                           bed_thick,                             &
 # endif
      &                           Zt_avg1,                               &
      &                           Hz, z_r, z_w)
@@ -105,6 +114,9 @@
 #  ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
 #  endif
+#  if defined SEDIMENT && defined SED_MORPH
+      real(r8), intent(in):: bed_thick(LBi:,LBj:,:)
+#  endif
       real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
       real(r8), intent(inout) :: h(LBi:,LBj:)
       real(r8), intent(out) :: Hz(LBi:,LBj:,:)
@@ -113,6 +125,9 @@
 # else
 #  ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
+#  endif
+#  if defined SEDIMENT && defined SED_MORPH
+      real(r8), intent(in):: bed_thick(LBi:UBi,LBj:UBj,2)
 #  endif
       real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: h(LBi:UBi,LBj:UBj)
@@ -155,6 +170,9 @@
       IF (Vtransform(ng).eq.1) THEN
         DO j=JstrT,JendT
           DO i=IstrT,IendT
+# if defined SEDIMENT && defined SED_MORPH
+            h(i,j)=h(i,j)-bed_thick(i,j,nstp)+bed_thick(i,j,nnew)
+# endif
 # if defined WET_DRY
             IF (h(i,j).eq.0.0_r8) THEN
               h(i,j)=eps
@@ -243,6 +261,9 @@
       ELSE IF (Vtransform(ng).eq.2) THEN
         DO j=JstrT,JendT
           DO i=IstrT,IendT
+# if defined SEDIMENT && defined SED_MORPH
+            h(i,j)=h(i,j)-bed_thick(i,j,nstp)+bed_thick(i,j,nnew)
+# endif
 # if defined WET_DRY
             IF (h(i,j).eq.0.0_r8) THEN
               h(i,j)=eps

@@ -99,9 +99,6 @@
 !=======================================================================
 !
       USE mod_kinds
-#ifdef SPECTRUM_STOKES
-      USE mct_coupler_params
-#endif
 !
       implicit none
 !

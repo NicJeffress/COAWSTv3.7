@@ -2347,9 +2347,8 @@
             END IF
           END IF
         END DO
-#  endif 
+#  endif
 #  if defined ESTUARYBGC && defined SAV_BIOMASS
-!
 !  Read in AGB and BGB values
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idsagb)),     & 

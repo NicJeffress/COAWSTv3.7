@@ -122,14 +122,6 @@
               CASE ('idTads(iODU_)')
                 idTads(iODU_)=varid
 # endif
-# ifdef RIVER_DON
-            CASE ('idTads(iRDeN)')
-              idTads(iRDeN)=varid
-#  ifdef CARBON
-            CASE ('idTads(iRDeC)')
-              idTads(iRDeC)=varid
-#  endif
-# endif
 #endif
 
 /*

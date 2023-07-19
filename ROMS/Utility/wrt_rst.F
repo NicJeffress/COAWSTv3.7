@@ -33,6 +33,9 @@
       USE mod_vegetation
       USE mod_vegarr
 #endif
+#if defined ESTUARYBGC && defined SAV_BIOMASS
+      USE mod_biology
+#endif
       USE mod_stepping
 !
       USE nf_fwrite2d_mod, ONLY : nf_fwrite2d
@@ -952,7 +955,7 @@
 #ifdef VEGETATION
 # include "vegetation_wrt_rst.h"
 #endif 
-
+!
 # ifdef SEDIMENT
 #  ifdef BEDLOAD
 !
@@ -1015,8 +1018,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     SEDBED(ng) % bed_frac(:,:,:,i),              &
-     &                     SetFillVal = .FALSE.)
+     &                     SEDBED(ng) % bed_frac(:,:,:,i))
         IF (FoundError(status, nf90_noerr, __LINE__, MyFile)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idfrac(i))), RST(ng)%Rindex
@@ -1039,8 +1041,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     SEDBED(ng) % bed_mass(:,:,:,NOUT,i),         &
-     &                     SetFillVal = .FALSE.)
+     &                     SEDBED(ng) % bed_mass(:,:,:,NOUT,i))
         IF (FoundError(status, nf90_noerr, __LINE__, MyFile)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idBmas(i))), RST(ng)%Rindex
@@ -1067,8 +1068,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     SEDBED(ng) % bed(:,:,:,i),                   &
-     &                     SetFillVal = .FALSE.)
+     &                     SEDBED(ng) % bed(:,:,:,i))
         IF (FoundError(status, nf90_noerr, __LINE__, MyFile)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbed(i))), RST(ng)%Rindex
@@ -1108,6 +1108,88 @@
       END DO
 # endif
 #endif
+#if defined ESTUARYBGC && defined SAV_BIOMASS
+!
+!  Write out AGB. 
+!
+      scale=1.0_dp
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idsagb),   &
+     &                   RST(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#  ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#  endif
+     &                   OCEAN(ng) % AGB)
+      IF (FoundError(status, nf90_noerr, __LINE__, MyFile)) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,idsagb)), RST(ng)%Rindex
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+!
+!  Write out BGB. 
+!
+      scale=1.0_dp
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idsbgb),   &
+     &                   RST(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#  ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#  endif
+     &                   OCEAN(ng) % BGB)
+      IF (FoundError(status, nf90_noerr, __LINE__, MyFile)) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,idsbgb)), RST(ng)%Rindex
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+!
+!  Write out EPB. 
+!
+      scale=1.0_dp
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idsepb),   &
+     &                   RST(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#  ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#  endif
+     &                   OCEAN(ng) % EPB)
+      IF (FoundError(status, nf90_noerr, __LINE__, MyFile)) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,idsepb)), RST(ng)%Rindex
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+!
+!  Write out DINsed. 
+!
+      scale=1.0_dp
+      gtype=gfactor*r3dvar
+      status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(iddins),   &
+     &                   RST(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, 1, N(ng), scale,           &
+#  ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#  endif
+     &                   OCEAN(ng) % DINsed)
+      IF (FoundError(status, nf90_noerr, __LINE__, MyFile)) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,iddins)), RST(ng)%Rindex
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+#endif 
 #ifdef INWAVE_MODEL
 !
 !  Write out AC wave energy density.

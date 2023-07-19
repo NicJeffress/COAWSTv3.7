@@ -1049,11 +1049,6 @@
             CASE ('BVF_BAK')
               Npts=load_r(Nval, Rval, 1, Rvalue)
               bvf_bak=Rvalue(1)
-#ifdef TIDE_GENERATING_FORCES
-            CASE ('Lnodal')
-              Npts=load_l(Nval, Cval, 1, Lvalue)
-              Lnodal=Lvalue(1)
-#endif
             CASE ('DSTART')
               Npts=load_r(Nval, Rval, 1, Dvalue)
               dstart=Dvalue(1)
@@ -1410,6 +1405,15 @@
               END DO
 # endif
 #endif
+! NIC J added this section ---------
+!            CASE ('Hout(izNik)')
+!            Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+!            i=idBott(izNik)
+!            DO ng=1,Ngrids
+!              Hout(i,ng)=Lswitch(ng)
+!       ! Hout(i,ng)=Lbottom(i,ng)
+!           END DO
+! end of additions by NIC J
             CASE ('Hout(idUvel)')
               IF (idUvel.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idUvel'
@@ -1586,6 +1590,135 @@
               Npts=load_l(Nval, Cval, Ngrids, Lswitch)
               Hout(idVbms,1:Ngrids)=Lswitch(1:Ngrids)
 #ifdef BBL_MODEL
+! NIC J added this section ---------
+!Nikuradse bottom roughness
+            CASE ('Hout(izNik)')
+            Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+            i=idBott(izNik)
+            DO ng=1,Ngrids
+              Hout(i,ng)=Lswitch(ng)
+        ! Hout(i,ng)=Lbottom(i,ng)
+            END DO
+!default bottom roughness
+        CASE ('Hout(izdef)')
+        Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+        i=idBott(izdef)
+        DO ng=1,Ngrids
+          Hout(i,ng)=Lswitch(ng)
+        END DO
+!apparent bottom roughness
+        CASE ('Hout(izapp)')
+        Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+        i=idBott(izapp)
+        DO ng=1,Ngrids
+          Hout(i,ng)=Lswitch(ng)
+        END DO
+! wave bottom roughness
+        CASE ('Hout(izwbl)')
+        Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+        i=idBott(izwbl)
+        DO ng=1,Ngrids
+          Hout(i,ng)=Lswitch(ng)
+        END DO
+!mean grain diameter
+        CASE ('Hout(isd50)')
+        Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+        i=idBott(isd50)
+        DO ng=1,Ngrids
+          Hout(i,ng)=Lswitch(ng)
+        END DO
+!mean grain density
+        CASE ('Hout(idens)')
+        Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+        i=idBott(idens)
+        DO ng=1,Ngrids
+          Hout(i,ng)=Lswitch(ng)
+        END DO
+!mean settling velocity
+        CASE ('Hout(iwsed)')
+        Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+        i=idBott(iwsed)
+        DO ng=1,Ngrids
+          Hout(i,ng)=Lswitch(ng)
+        END DO
+!critical erosion stress
+        CASE ('Hout(itauc)')
+        Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+        i=idBott(itauc)
+        DO ng=1,Ngrids
+          Hout(i,ng)=Lswitch(ng)
+        END DO
+!bed wave excursion amplitude
+            CASE ('Hout(ibwav)')
+            Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+            i=idBott(ibwav)
+            DO ng=1,Ngrids
+              Hout(i,ng)=Lswitch(ng)
+            END DO
+!Angle between waves and currents.
+!        CASE ('Hout(idspwc)')
+!          IF (idspwc.eq.0) THEN
+!            IF (Master) WRITE (out,280) 'idspwc'
+!            exit_flag=5
+!            RETURN
+!          END IF
+!          Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+!          Hout(idspwc,1:Ngrids)=Lswitch(1:Ngrids)
+!Thickness at wave boundary layer
+!        CASE ('Hout(idstbl)')
+!          IF (idstbl.eq.0) THEN
+!            IF (Master) WRITE (out,280) 'idstbl'
+!            exit_flag=5
+!            RETURN
+!          END IF
+!          Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+!          Hout(idstbl,1:Ngrids)=Lswitch(1:Ngrids)
+!Current velocity at wave boundary layer
+!        CASE ('Hout(idsubl)')
+!          IF (idsubl.eq.0) THEN
+!            IF (Master) WRITE (out,280) 'idsubl'
+!            exit_flag=5
+!            RETURN
+!          END IF
+!          Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+!          Hout(idsubl,1:Ngrids)=Lswitch(1:Ngrids)
+!Friction factor from the currents
+!        CASE ('Hout(idsfdw)')
+!          IF (idsfdw.eq.0) THEN
+!            IF (Master) WRITE (out,280) 'idsfdw'
+!            exit_flag=5
+!            RETURN
+!          END IF
+!          Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+!          Hout(idsfdw,1:Ngrids)=Lswitch(1:Ngrids)
+!Reference height to get near bottom current velocity.
+!        CASE ('Hout(idszrw)')
+!          IF (idszrw.eq.0) THEN
+!            IF (Master) WRITE (out,280) 'idszrw'
+!            exit_flag=5
+!            RETURN
+!          END IF
+!          Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+!          Hout(idszrw,1:Ngrids)=Lswitch(1:Ngrids)
+!Bed roughness (Zo) for wave boundary layer calc
+!        CASE ('Hout(idsksd)')
+!          IF (idsksd.eq.0) THEN
+!            IF (Master) WRITE (out,280) 'idsksd'
+!            exit_flag=5
+!            RETURN
+!          END IF
+!          Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+!          Hout(idsksd,1:Ngrids)=Lswitch(1:Ngrids)
+!Current friction velocity at the wave boundary layer
+!        CASE ('Hout(idsusc)')
+!          IF (idsusc.eq.0) THEN
+!            IF (Master) WRITE (out,280) 'idsusc'
+!            exit_flag=5
+!            RETURN
+!          END IF
+!          Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+!          Hout(idsusc,1:Ngrids)=Lswitch(1:Ngrids)
+! end of additions by NIC J -------------------
             CASE ('Hout(idUbrs)')
               IF (idUbrs.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idUbrs'
@@ -2524,12 +2657,6 @@
             CASE ('Qout(idVair)')
               Npts=load_l(Nval, Cval, Ngrids, Lswitch)
               Qout(idVair,1:Ngrids)=Lswitch(1:Ngrids)
-            CASE ('Qout(idUairE)')
-              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
-              Qout(idUairE,1:Ngrids)=Lswitch(1:Ngrids)
-            CASE ('Qout(idVairN)')
-              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
-              Qout(idVairN,1:Ngrids)=Lswitch(1:Ngrids)
 # endif
 #endif
             CASE ('Qout(idTsur)')
@@ -4092,8 +4219,7 @@
               label='SSF - Sources/Sinks forcing fields'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
      &                      Ngrids, Nfiles, SSF)
-# if defined SSH_TIDES || defined UV_TIDES || \
-     defined TIDE_GENERATING_FORCES
+# if defined SSH_TIDES || defined UV_TIDES
             CASE ('TIDENAME')
               label='TIDE - Tidal forcing fields'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
@@ -5294,10 +5420,6 @@
           WRITE (out,200) bvf_bak, 'bvf_bak',                           &
      &          'Background Brunt-Vaisala frequency squared (1/s2).'
 #endif
-#ifdef TIDE_GENERATING_FORCES
-          WRITE (out,170) Lnodal, 'Lnodal',                             &
-     &          'Switch to apply a 18.5-year lunar nodal correction.'
-#endif
           WRITE (out,140) dstart, 'dstart',                             &
      &          'Time-stamp assigned to model initialization (days).'
 #if defined SSH_TIDES || defined UV_TIDES
@@ -6356,18 +6478,24 @@
      &         'Write out surface air temperature.'
 # endif
 # if defined BULK_FLUXES || defined ECOSIM
-          IF (Qout(idUair,ng)) WRITE (out,170) Qout(idUair,ng),          &
-     &        'Qout(idUair)',                                            &
-     &        'Write out surface U-wind component.'
-          IF (Qout(idVair,ng)) WRITE (out,170) Qout(idVair,ng),          &
-     &        'Qout(idVair)',                                            &
-     &        'Write out surface V-wind component.'
-          IF (Qout(idUairE,ng)) WRITE (out,170) Qout(idUairE,ng),        &
-     &       'Qout(idUairE)',                                            &
+          IF (Hout(idUair,ng)) WRITE (out,170) Hout(idUair,ng),         &
+     &       'Hout(idUair)',                                            &
+     &       'Write out surface U-wind component.'
+          IF (Hout(idVair,ng)) WRITE (out,170) Hout(idVair,ng),         &
+     &       'Hout(idVair)',                                            &
+     &       'Write out surface V-wind component.'
+          IF (Hout(idUairE,ng)) WRITE (out,170) Hout(idUairE,ng),        &
+     &       'Hout(idUairE)',                                            &
      &       'Write out surface Eastward U-wind component.'
-          IF (Qout(idVairN,ng)) WRITE (out,170) Qout(idVairN,ng),        &
-     &       'Qout(idVairN)',                                            &
+          IF (Hout(idVairN,ng)) WRITE (out,170) Hout(idVairN,ng),        &
+     &       'Hout(idVairN)',                                            &
      &       'Write out surface Northward V-wind component.'
+            IF (Qout(idUair,ng)) WRITE (out,170) Qout(idUair,ng),       &
+     &         'Qout(idUair)',                                          &
+     &         'Write out surface U-wind component.'
+            IF (Qout(idVair,ng)) WRITE (out,170) Qout(idVair,ng),       &
+     &         'Qout(idVair)',                                          &
+     &         'Write out surface V-wind component.'
 # endif
             IF (Qout(idTsur(itemp),ng)) WRITE (out,170)                 &
      &          Qout(idTsur(itemp),ng), 'Qout(idTsur)',                 &
@@ -7372,19 +7500,6 @@
           END DO
         END IF
       END IF
-
-#if !defined ANA_TIDES              && \
-    (defined TIDE_GENERATING_FORCES || \
-     defined SSH_TIDES              || defined UV_TIDES)
-!
-!-----------------------------------------------------------------------
-!  Check and report tidal reference date for zero phase.
-!-----------------------------------------------------------------------
-!
-      DO ng=1,Ngrids
-        CALL tides_date (ng)
-      END DO
-#endif
 
 #if defined WEAK_CONSTRAINT   && \
    (defined POSTERIOR_EOFS    || defined POSTERIOR_ERROR_F || \

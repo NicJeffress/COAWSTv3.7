@@ -121,7 +121,7 @@ done
 # Set the CPP option defining the particular application. This will
 # determine the name of the ".h" header file with the application
 # CPP definitions. Also this will activate the switch file for WW3.
-export   COAWST_APPLICATION=INLET_TEST
+export   COAWST_APPLICATION=MOOREA_NORTH_A9
 
 # Set the ROMS_APPLICATION to be the same as the COAWST_APP.
 # Do not change this. We use the COAWST APP for other checks.
@@ -130,7 +130,7 @@ export   ROMS_APPLICATION=${COAWST_APPLICATION}
 # Set a local environmental variable to define the path to the directories
 # where all this project's files are kept.
 export   MY_ROOT_DIR=/hpc/home/nsj9/COAWSTv3.7
-export   MY_PROJECT_DIR=/hpc/home/nsj9/COAWSTv3.7/Projects/Inlet_test/Coupled
+export   MY_PROJECT_DIR=/work/nsj9/ProjNJ/Moorea_North_A9
 
 # The path to the user's local current ROMS source code.
 # If using svn locally, this would be the user's Working Copy Path (WCPATH).

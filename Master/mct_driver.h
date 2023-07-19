@@ -83,13 +83,10 @@
       integer :: MyColor, MyCOMM, MyError, MyKey, Nnodes
       integer :: MyRank, pelast
       integer :: Ocncolor, Wavcolor, Atmcolor, Hydcolor
-      integer :: ng, iw, io, ia, ih, icc, roms_exit
+	integer :: ng, iw, io, ia, ih, icc
       real(m8) :: lcm, gcdlcm
 
       real(m4) :: CouplingTime             ! single precision
-!
-!  This is roms exit flag if blows up.
-      roms_exit=0
 !
 !-----------------------------------------------------------------------
 !  Initialize distributed-memory (MPI) configuration
@@ -575,27 +572,14 @@
             run_time=MAX(run_time, dt(ng)*ntimes(ng))
           END DO
           CALL ROMS_run (run_time)
-          roms_exit=exit_flag
         END IF
         CALL ROMS_finalize
-        roms_exit=roms_exit+exit_flag
 # if defined SWAN_COUPLING || defined REFDIF_COUPLING || \
      defined WW3_COUPLING
-        IF (roms_exit.eq.NoError) THEN
-          CALL finalize_ocn2wav_coupling
-        ELSE
-          CALL SLEEP (20)
-          ERROR STOP ! F-2008
-          CALL mpi_finalize (MyError)
-        END IF
+        CALL finalize_ocn2wav_coupling
 # endif
 # ifdef WRF_COUPLING
-        IF (roms_exit.eq.NoError) THEN
-          CALL finalize_ocn2atm_coupling
-        ELSE
-          ERROR STOP ! F-2008
-          CALL mpi_finalize (MyError)
-        END IF
+        CALL finalize_ocn2atm_coupling
 # endif
       END IF
 #endif

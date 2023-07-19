@@ -143,6 +143,7 @@
 !  Read in physical model input parameters.
 !-----------------------------------------------------------------------
 !
+PRINT *, 'NicJ gets here1 inp_par.F'
       IF (Master.and.Lwrite) WRITE (out,10) version, TRIM(date_str)
  10   FORMAT (80('-'),/,                                                &
               ' Model Input Parameters:  ROMS/TOMS version ',a,/,       &

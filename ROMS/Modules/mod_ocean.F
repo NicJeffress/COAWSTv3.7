@@ -1,10 +1,9 @@
 #include "cppdefs.h"
       MODULE mod_ocean
 !
-!git $Id$
-!svn $Id: mod_ocean.F 1099 2022-01-06 21:01:01Z arango $
+!svn $Id: mod_ocean.F 1054 2021-03-06 19:47:12Z arango $
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2022 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2021 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -17,9 +16,6 @@
 !  ubar         Vertically integrated U-momentum component (m/s).      !
 !  vbar         Vertically integrated V-momentum component (m/s).      !
 !  zeta         Free surface (m).                                      !
-#if defined TIDE_GENERATING_FORCES
-!  eq_tide      Equilibrium tides (m) used in tide generating forces.  !
-#endif
 !                                                                      !
 !  3D Primitive Variables.                                             !
 !                                                                      !
@@ -109,9 +105,6 @@
           real(r8), pointer :: ubar(:,:,:)
           real(r8), pointer :: vbar(:,:,:)
           real(r8), pointer :: zeta(:,:,:)
-#if defined TIDE_GENERATING_FORCES
-          real(r8), pointer :: eq_tide(:,:)
-#endif
 #if defined WEC_VF
           real(r8), pointer :: zetat(:,:)
           real(r8), pointer :: zetaw(:,:)
@@ -135,9 +128,6 @@
           real(r8), pointer :: u(:,:,:,:)
           real(r8), pointer :: v(:,:,:,:)
           real(r8), pointer :: W(:,:,:)
-# if defined OMEGA_IMPLICIT
-          real(r8), pointer :: Wi(:,:,:)
-# endif
           real(r8), pointer :: wvel(:,:,:)
 
 # ifdef NEMURO_SED1
@@ -214,9 +204,6 @@
           real(r8), pointer :: tl_ubar(:,:,:)
           real(r8), pointer :: tl_vbar(:,:,:)
           real(r8), pointer :: tl_zeta(:,:,:)
-# if defined TIDE_GENERATING_FORCES
-          real(r8), pointer :: tl_eq_tide(:,:)
-# endif
 # if defined WEC
           real(r8), pointer :: tl_rulag2d(:,:)
           real(r8), pointer :: tl_rvlag2d(:,:)
@@ -257,9 +244,6 @@
           real(r8), pointer :: ad_ubar_sol(:,:)
           real(r8), pointer :: ad_vbar_sol(:,:)
           real(r8), pointer :: ad_zeta_sol(:,:)
-# if defined TIDE_GENERATING_FORCES
-          real(r8), pointer :: ad_eq_tide(:,:)
-# endif
 # if defined WEC
           real(r8), pointer :: ad_rulag2d(:,:)
           real(r8), pointer :: ad_rvlag2d(:,:)
@@ -389,11 +373,11 @@
 #endif
 
         END TYPE T_OCEAN
-!
+
         TYPE (T_OCEAN), allocatable :: OCEAN(:)
-!
+
       CONTAINS
-!
+
       SUBROUTINE allocate_ocean (ng, LBi, UBi, LBj, UBj)
 !
 !=======================================================================
@@ -442,10 +426,6 @@
 
       allocate ( OCEAN(ng) % zeta(LBi:UBi,LBj:UBj,3) )
       Dmem(ng)=Dmem(ng)+3.0_r8*size2d
-#if defined TIDE_GENERATING_FORCES
-      allocate ( OCEAN(ng) % eq_tide(LBi:UBi,LBj:UBj) )
-      Dmem(ng)=Dmem(ng)+size2d
-#endif
 #if defined WEC_VF
       allocate ( OCEAN(ng) % zetat(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
@@ -495,11 +475,6 @@
 
       allocate ( OCEAN(ng) % W(LBi:UBi,LBj:UBj,0:N(ng)) )
       Dmem(ng)=Dmem(ng)+REAL(N(ng)+1,r8)*size2d
-
-# if defined OMEGA_IMPLICIT
-      allocate ( OCEAN(ng) % Wi(LBi:UBi,LBj:UBj,0:N(ng)) )
-      Dmem(ng)=Dmem(ng)+REAL(N(ng)+1,r8)*size2d
-# endif
 
       allocate ( OCEAN(ng) % wvel(LBi:UBi,LBj:UBj,0:N(ng)) )
       Dmem(ng)=Dmem(ng)+REAL(N(ng)+1,r8)*size2d
@@ -638,10 +613,6 @@
       allocate ( OCEAN(ng) % tl_zeta(LBi:UBi,LBj:UBj,3) )
       Dmem(ng)=Dmem(ng)+3.0_r8*size2d
 
-# if defined TIDE_GENERATING_FORCES
-      allocate ( OCEAN(ng) % tl_eq_tide(LBi:UBi,LBj:UBj) )
-      Dmem(ng)=Dmem(ng)+3.0_r8*size2d
-# endif
 # if defined WEC
       allocate ( OCEAN(ng) % tl_rulag2d(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
@@ -732,11 +703,6 @@
 
       allocate ( OCEAN(ng) % ad_zeta_sol(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
-
-# if defined TIDE_GENERATING_FORCES
-      allocate ( OCEAN(ng) % ad_eq_tide(LBi:UBi,LBj:UBj) )
-      Dmem(ng)=Dmem(ng)+3.0_r8*size2d
-# endif
 
 # if defined WEC
       allocate ( OCEAN(ng) % ad_rulag2d(LBi:UBi,LBj:UBj) )
@@ -1091,9 +1057,6 @@
             OCEAN(ng) % zeta(i,j,1) = IniVal
             OCEAN(ng) % zeta(i,j,2) = IniVal
             OCEAN(ng) % zeta(i,j,3) = IniVal
-#if defined TIDE_GENERATING_FORCES
-            OCEAN(ng) % eq_tide(i,j) = IniVal
-#endif
 #if defined WEC_VF
             OCEAN(ng) % zetat(i,j) = IniVal
             OCEAN(ng) % zetaw(i,j) = IniVal
@@ -1198,9 +1161,6 @@
               OCEAN(ng) % rv(i,j,k,2) = IniVal
 
               OCEAN(ng) % W(i,j,k) = IniVal
-# if defined OMEGA_IMPLICIT
-              OCEAN(ng) % Wi(i,j,k) = IniVal
-# endif
               OCEAN(ng) % wvel(i,j,k) = IniVal
 # if defined WEC
               OCEAN(ng) % W_stokes(i,j,k) = IniVal
@@ -1244,11 +1204,6 @@
             OCEAN(ng) % tl_zeta(i,j,1) = IniVal
             OCEAN(ng) % tl_zeta(i,j,2) = IniVal
             OCEAN(ng) % tl_zeta(i,j,3) = IniVal
-
-# if defined TIDE_GENERATING_FORCES
-            OCEAN(ng) % tl_eq_tide(i,j) = IniVal
-# endif
-
 # if defined FORCING_SV || defined HESSIAN_FSV
             OCEAN(ng) % f_ubar(i,j) = IniVal
             OCEAN(ng) % f_vbar(i,j) = IniVal
@@ -1336,11 +1291,6 @@
             OCEAN(ng) % ad_zeta(i,j,1) = IniVal
             OCEAN(ng) % ad_zeta(i,j,2) = IniVal
             OCEAN(ng) % ad_zeta(i,j,3) = IniVal
-
-# if defined TIDE_GENERATING_FORCES
-            OCEAN(ng) % ad_eq_tide(i,j) = IniVal
-# endif
-
 # if defined FORCING_SV | defined HESSIAN_FSV
             OCEAN(ng) % f_ubar(i,j) = IniVal
             OCEAN(ng) % f_vbar(i,j) = IniVal

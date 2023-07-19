@@ -1,8 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_coupler
 
-!#if defined MODEL_COUPLING && defined MCT_LIB
-#if !defined COAWST_MODEL
+#if defined MODEL_COUPLING && defined MCT_LIB
 !
 !svn $Id: mod_coupler.F 1054 2021-03-06 19:47:12Z arango $
 !================================================== Hernan G. Arango ===

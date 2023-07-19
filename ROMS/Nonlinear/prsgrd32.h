@@ -78,9 +78,6 @@
      &                  GRID(ng) % zice,                                &
 #endif
      &                  OCEAN(ng) % rho,                                &
-#ifdef TIDE_GENERATING_FORCES
-     &                  OCEAN(ng) % eq_tide,                            &
-#endif
 #ifdef WEC_VF
      &                  OCEAN(ng) % zetat,                              &
 #endif
@@ -121,9 +118,6 @@
      &                        zice,                                     &
 # endif
      &                        rho,                                      &
-#ifdef TIDE_GENERATING_FORCES
-     &                        eq_tide,                                  &
-#endif
 #ifdef WEC_VF
      &                        zetat,                                    &
 #endif
@@ -168,12 +162,9 @@
 # endif
 
       real(r8), intent(in) :: rho(LBi:,LBj:,:)
-# ifdef TIDE_GENERATING_FORCES
-      real(r8), intent(in) :: eq_tide(LBi:,LBj:)
-# endif
-# ifdef WEC_VF
+#ifdef WEC_VF
       real(r8), intent(in) :: zetat(LBi:,LBj:)
-# endif
+#endif
 # ifdef ATM_PRESS
       real(r8), intent(in) :: Pair(LBi:,LBj:)
 # endif
@@ -204,12 +195,9 @@
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(in) :: rho(LBi:UBi,LBj:UBj,N(ng))
-# ifdef TIDE_GENERATING_FORCES
-      real(r8), intent(in) :: eq_tide(LBi:UBi,LBj:UBj)
-# endif
-# ifdef WEC_VF
+#ifdef WEC_VF
       real(r8), intent(in) :: zetat(LBi:UBi,LBj:UBj)
-# endif
+#endif
 # ifdef ATM_PRESS
       real(r8), intent(in) :: Pair(LBi:UBi,LBj:UBj)
 # endif
@@ -309,8 +297,8 @@
      &                 GRho*(rho(i,j,N(ng))+cff2)*                      &
      &                 (z_w(i,j,N(ng))-z_r(i,j,N(ng)))
 #endif
-#ifdef TIDE_GENERATING_FORCES
-          P(i,j,N(ng))=P(i,j,N(ng))-g*eq_tide(i,j)
+#ifdef POT_TIDES
+          P(i,j,N(ng)) = P(i,j,N(ng)) - g*Ptide(i,j)
 #endif
         END DO
         DO k=N(ng)-1,1,-1

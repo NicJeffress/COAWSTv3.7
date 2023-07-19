@@ -2489,7 +2489,6 @@
           RETURN
         END IF
       END IF
-#   ifdef SALINITY
 !
 !  Write out vertical diffusion coefficient for salinity.
 !
@@ -2499,9 +2498,9 @@
         status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idSdif), &
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 0, N(ng), scale,         &
-#    ifdef MASKING
+#   ifdef MASKING
      &                     GRID(ng) % rmask,                            &
-#    endif
+#   endif
      &                     AVERAGE(ng) % avgAKs,                        &
      &                     SetFillVal = .FALSE.)
         IF (FoundError(status, nf90_noerr, __LINE__, MyFile)) THEN
@@ -2513,7 +2512,6 @@
           RETURN
         END IF
       END IF
-#   endif
 #  endif
 #  ifdef TS_VAR
 !

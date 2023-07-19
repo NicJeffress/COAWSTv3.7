@@ -66,10 +66,6 @@
 # endif
      &                     GRID(ng) % om_v,                             &
      &                     GRID(ng) % on_u,                             &
-# if defined OMEGA_IMPLICIT
-     &                     GRID(ng) % om_u,                             &
-     &                     GRID(ng) % on_v,                             &
-# endif
      &                     GRID(ng) % pm,                               &
      &                     GRID(ng) % pn,                               &
      &                     GRID(ng) % Hz,                               &
@@ -105,9 +101,6 @@
      &                     OCEAN(ng) % u_stokes,                        &
      &                     OCEAN(ng) % v_stokes,                        &
 # endif
-# if defined OMEGA_IMPLICIT
-     &                     OCEAN(ng) % Wi,                              &
-# endif
      &                     GRID(ng) % Huon,                             &
      &                     GRID(ng) % Hvom)
 # ifdef PROFILE
@@ -128,11 +121,7 @@
 # ifdef WET_DRY
      &                           umask_wet, vmask_wet,                  &
 # endif
-     &                           om_v, on_u,                            &
-# if defined OMEGA_IMPLICIT
-     &                           om_u, on_v,                            &
-# endif
-     &                           pm, pn,                                &
+     &                           om_v, on_u, pm, pn,                    &
      &                           Hz, z_r, z_w,                          &
 # ifdef UV_WAVEDRAG
      &                           wavedrag,                              &
@@ -152,9 +141,6 @@
 # ifdef WEC
      &                           ubar_stokes, vbar_stokes,              &
      &                           u_stokes, v_stokes,                    &
-# endif
-# if defined OMEGA_IMPLICIT
-     &                           Wi,                                    &
 # endif
      &                           Huon, Hvom)
 !***********************************************************************
@@ -193,10 +179,6 @@
 #  endif
       real(r8), intent(in) :: om_v(LBi:,LBj:)
       real(r8), intent(in) :: on_u(LBi:,LBj:)
-# if defined OMEGA_IMPLICIT
-      real(r8), intent(in) :: om_u(LBi:,LBj:)
-      real(r8), intent(in) :: on_v(LBi:,LBj:)
-# endif
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
@@ -232,9 +214,6 @@
       real(r8), intent(inout) :: u_stokes(LBi:,LBj:,:)
       real(r8), intent(inout) :: v_stokes(LBi:,LBj:,:)
 #  endif
-# if defined OMEGA_IMPLICIT
-      real(r8), intent(in) :: Wi(LBi:,LBj:,0:)
-# endif
       real(r8), intent(out) :: ubar(LBi:,LBj:,:)
       real(r8), intent(out) :: vbar(LBi:,LBj:,:)
       real(r8), intent(out) :: Huon(LBi:,LBj:,:)
@@ -252,10 +231,6 @@
 #  endif
       real(r8), intent(in) :: om_v(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: on_u(LBi:UBi,LBj:UBj)
-# if defined OMEGA_IMPLICIT
-      real(r8), intent(in) :: om_u(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: on_v(LBi:UBi,LBj:UBj)
-# endif
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
@@ -291,9 +266,6 @@
       real(r8), intent(inout) :: u_stokes(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(inout) :: v_stokes(LBi:UBi,LBj:UBj,N(ng))
 #  endif
-# if defined OMEGA_IMPLICIT
-      real(r8), intent(in) :: Wi(LBi:UBi,LBj:UBj,0:N(ng))
-# endif
       real(r8), intent(out) :: ubar(LBi:UBi,LBj:UBj,3)
       real(r8), intent(out) :: vbar(LBi:UBi,LBj:UBj,3)
       real(r8), intent(out) :: Huon(LBi:UBi,LBj:UBj,N(ng))
@@ -320,11 +292,6 @@
 # ifdef DIAGNOSTICS_UV
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: wrk
       real(r8), dimension(IminS:ImaxS,1:NDM2d-1) :: Dwrk
-# endif
-# if defined OMEGA_IMPLICIT
-      real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FCmin
-      real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FCmax
-      real(r8), dimension(IminS:ImaxS,0:N(ng)) :: WK
 # endif
 
 # include "set_bounds.h"
@@ -506,88 +473,6 @@
 #  ifdef DIAGNOSTICS_UV
             DiaU3wrk(i,j,k,M3vvis)=DiaU3wrk(i,j,k,M3vvis)+              &
      &                             u(i,j,k,nnew)-wrk(i,k)
-#  endif
-          END DO
-        END DO
-# endif
-# if defined OMEGA_IMPLICIT
-!
-!  Implicit vertical advection part for u.
-!
-        DO i=IstrU,Iend
-          WK(i,0)=0.5_r8*(Wi(i-1,j,0)+                                 &
-     &                    Wi(i  ,j,0))
-          DO k=1,N(ng)
-            WK(i,k)=0.5_r8*(Wi(i-1,j,k)+                               &
-     &                      Wi(i  ,j,k))
-            Hzk(i,k)=0.5_r8*(Hz(i-1,j,k)+                               &
-     &                       Hz(i  ,j,k))
-          END DO
-        END DO
-!
-!  Compute off-diagonal coefficients [dt*Wi*pm*pn] for the
-!  implicit vertical viscosity term at horizontal U-points and
-!  vertical W-points.
-!
-        cff=dt(ng)
-        DO k=1,N(ng)-1
-          DO i=IstrU,Iend
-            FCmax(i,k)=MAX(WK(i,k),0.0_r8)*cff/(on_u(i,j)*om_u(i,j))
-            FCmin(i,k)=MIN(WK(i,k),0.0_r8)*cff/(on_u(i,j)*om_u(i,j))
-          END DO
-        END DO
-        DO i=IstrU,Iend
-          FCmax(i,0)=0.0_r8
-          FCmin(i,0)=0.0_r8
-          FCmax(i,N(ng))=0.0_r8
-          FCmin(i,N(ng))=0.0_r8
-        END DO
-!
-!  Solve the tridiagonal system.
-!
-        DO k=1,N(ng)
-          DO i=IstrU,Iend
-            BC(i,k)=Hzk(i,k)+FCmax(i,k)-FCmin(i,k-1)
-            DC(i,k)=u(i,j,k,nnew)*Hzk(i,k)
-          END DO
-        END DO
-        DO i=IstrU,Iend
-          cff=1.0_r8/BC(i,1)
-          CF(i,1)=cff*FCmin(i,1)
-          DC(i,1)=cff*DC(i,1)
-        END DO
-        DO k=2,N(ng)-1
-          DO i=IstrU,Iend
-            cff=1.0_r8/(BC(i,k)+FCmax(i,k-1)*CF(i,k-1))
-            CF(i,k)=cff*FCmin(i,k)
-            DC(i,k)=cff*(DC(i,k)+FCmax(i,k-1)*DC(i,k-1))
-          END DO
-        END DO
-!
-!  Compute new solution by back substitution.
-!
-        DO i=IstrU,Iend
-#  ifdef DIAGNOSTICS_UV
-          cff1=u(i,j,N(ng),nnew)
-#  endif
-          DC(i,N(ng))=(DC(i,N(ng))+FCmax(i,N(ng)-1)*DC(i,N(ng)-1))/     &
-     &                (BC(i,N(ng))+FCmax(i,N(ng)-1)*CF(i,N(ng)-1))
-          u(i,j,N(ng),nnew)=DC(i,N(ng))
-#  ifdef DIAGNOSTICS_UV
-          DiaRU(i,j,N(ng),nrhs,M3vadv)=DiaRU(i,j,N(ng),nrhs,M3vadv)+    &
-     &                                 u(i,j,N(ng),nnew)-cff1
-#  endif
-        END DO
-        DO k=N(ng)-1,1,-1
-          DO i=IstrU,Iend
-#  ifdef DIAGNOSTICS_UV
-            cff1=u(i,j,k,nnew)
-#  endif
-            DC(i,k)=DC(i,k)-CF(i,k)*DC(i,k+1)
-            u(i,j,k,nnew)=DC(i,k)
-#  ifdef DIAGNOSTICS_UV
-            DiaRU(i,j,k,nrhs,M3vadv)=DiaRU(i,j,k,nrhs,M3vadv)+          &
-     &                               u(i,j,k,nnew)-cff1
 #  endif
           END DO
         END DO
@@ -980,88 +865,6 @@
 #  ifdef DIAGNOSTICS_UV
               DiaV3wrk(i,j,k,M3vvis)=DiaV3wrk(i,j,k,M3vvis)+            &
      &                               v(i,j,k,nnew)-wrk(i,k)
-#  endif
-            END DO
-          END DO
-# endif
-# if defined OMEGA_IMPLICIT
-!
-!  Implicit vertical advection part for v.
-!
-          DO i=Istr,Iend
-            WK(i,0)=0.5_r8*(Wi(i,j-1,0)+                                 &
-     &                      Wi(i,j  ,0))
-            DO k=1,N(ng)
-              WK(i,k)=0.5_r8*(Wi(i,j-1,k)+                               &
-     &                        Wi(i,j  ,k))
-              Hzk(i,k)=0.5_r8*(Hz(i,j-1,k)+                              &
-     &                         Hz(i,j  ,k))
-            END DO
-          END DO
-!
-!  Compute off-diagonal coefficients [dt*Wi*pm*pn] for the
-!  implicit vertical viscosity term at horizontal V-points and
-!  vertical W-points.
-!
-          cff=dt(ng)
-          DO k=1,N(ng)-1
-            DO i=Istr,Iend
-              FCmax(i,k)=MAX(WK(i,k),0.0_r8)*cff/(on_v(i,j)*om_v(i,j))
-              FCmin(i,k)=MIN(WK(i,k),0.0_r8)*cff/(on_v(i,j)*om_v(i,j))
-            END DO
-          END DO
-          DO i=Istr,Iend
-            FCmax(i,0)=0.0_r8
-            FCmin(i,0)=0.0_r8
-            FCmax(i,N(ng))=0.0_r8
-            FCmin(i,N(ng))=0.0_r8
-          END DO
-!
-!  Solve the tridiagonal system.
-!
-          DO k=1,N(ng)
-            DO i=Istr,Iend
-              BC(i,k)=Hzk(i,k)+FCmax(i,k)-FCmin(i,k-1)
-              DC(i,k)=v(i,j,k,nnew)*Hzk(i,k)
-            END DO
-          END DO
-          DO i=Istr,Iend
-            cff=1.0_r8/BC(i,1)
-            CF(i,1)=cff*FCmin(i,1)
-            DC(i,1)=cff*DC(i,1)
-          END DO
-          DO k=2,N(ng)-1
-            DO i=Istr,Iend
-              cff=1.0_r8/(BC(i,k)+FCmax(i,k-1)*CF(i,k-1))
-              CF(i,k)=cff*FCmin(i,k)
-              DC(i,k)=cff*(DC(i,k)+FCmax(i,k-1)*DC(i,k-1))
-            END DO
-          END DO
-!
-!  Compute new solution by back substitution.
-!
-          DO i=Istr,Iend
-#  ifdef DIAGNOSTICS_UV
-            cff1=v(i,j,N(ng),nnew)
-#  endif
-            DC(i,N(ng))=(DC(i,N(ng))+FCmax(i,N(ng)-1)*DC(i,N(ng)-1))/   &
-     &                  (BC(i,N(ng))+FCmax(i,N(ng)-1)*CF(i,N(ng)-1))
-            v(i,j,N(ng),nnew)=DC(i,N(ng))
-#  ifdef DIAGNOSTICS_UV
-            DiaRV(i,j,N(ng),nrhs,M3vadv)=DiaRV(i,j,N(ng),nrhs,M3vadv)+ &
-     &                                  v(i,j,N(ng),nnew)-cff1
-#  endif
-          END DO
-          DO k=N(ng)-1,1,-1
-            DO i=Istr,Iend
-#  ifdef DIAGNOSTICS_UV
-              cff1=v(i,j,k,nnew)
-#  endif
-              DC(i,k)=DC(i,k)-CF(i,k)*DC(i,k+1)
-              v(i,j,k,nnew)=DC(i,k)
-#  ifdef DIAGNOSTICS_UV
-              DiaRV(i,j,k,nrhs,M3vadv)=DiaRV(i,j,k,nrhs,M3vadv)+       &
-     &                                 v(i,j,k,nnew)-cff1
 #  endif
             END DO
           END DO
