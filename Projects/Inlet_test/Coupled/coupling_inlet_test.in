@@ -58,8 +58,8 @@
 ! The Wav program needs multiple input files, one for each grid.
 
    ATM_name = namelist.input                                      ! WRF input file
-   WAV_name = /hpc/home/nsj9/COAWSTv3.7/Projects/Inlet_test/Coupled/swan_inlet_test.in      ! wave model
-   OCN_name = /hpc/home/nsj9/COAWSTv3.7/Projects/Inlet_test/Coupled/ocean_inlet_test.in     ! ocean model
+   WAV_name = /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/swan_inlet_test.in      ! wave model
+   OCN_name = /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/ocean_inlet_test.in     ! ocean model
    HYD_name = hydro.namelist                              ! hydro model
 
 ! Sparse matrix interpolation weights files. You have 2 options:
@@ -73,7 +73,7 @@
 !           weights. This file is created using the code in
 !           Lib/SCRIP_COAWST/scrip_coawst[.exe]
 
-   SCRIP_COAWST_NAME = Projects/Inlet_test/Coupled/scrip_weights_inlet_test.nc
+   SCRIP_COAWST_NAME = /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/scrip_weights_inlet_test.nc
 
 ! Option 2: THIS OPTION WILL BE REMOVED IN FUTURE VERSIONS.
 !           IF you set "SCRIP_WEIGHT_OPTION = 2", then enter 

@@ -7,8 +7,8 @@
 #  1. You need to set: FORT
 #
 
-FORT = ifort
-#FORT = gfortran
+#FORT = ifort
+FORT = gfortran
 #FORT  = pgi
 
 # 2. If you want to run in MPI, then set USE_MPI=on,
@@ -16,7 +16,7 @@ FORT = ifort
 # The USE_MPF90 will activate the call to mpif90.
 
 USE_MPI=on               # distributed-memory parallelism
-USE_MPIF90=on            # compile with mpif90 script
+USE_MPIF90=            # compile with mpif90 script
 USE_NETCDF4=on
 
 #

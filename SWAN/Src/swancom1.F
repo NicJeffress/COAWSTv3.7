@@ -3666,10 +3666,22 @@
       ELSEIF (IBOT.EQ.5) THEN                                             41.51
          WRITE(PRINTF,7328) PBOT(6)
  7328    FORMAT(' RIPPLES (`07)        : CF     ',E12.4)
+      ELSEIF (IBOT.EQ.6) THEN
+         WRITE(PRINTF,7336) PBOT(5)
+ 7336    FORMAT(' Swart (`74) fer          : KN     ',E12.4)
+      ELSEIF (IBOT.EQ.7) THEN
+         WRITE(PRINTF,7337) PBOT(5)
+ 7337    FORMAT(' Madsen (`95) fer         : KN     ',E12.4)
+      ELSEIF (IBOT.EQ.8) THEN
+         WRITE(PRINTF,7338) PBOT(5)
+ 7338    FORMAT(' S74 fenm              : KN     ',E12.4)
+      ELSEIF (IBOT.EQ.9) THEN
+         WRITE(PRINTF,7339) PBOT(5)
+ 7339    FORMAT(' M95 fenm              : KN     ',E12.4)
       ELSE
          WRITE (PRINTF, *) 'Bottom friction is off'
       ENDIF
-!
+!NJ Nic Jeffress changed here
       IF (IVEG.EQ.1) THEN                                                 40.55
          WRITE(PRINTF,7006)                                               40.55
  7006    FORMAT(' Vegetation due to Dalrymple (1984)')                    40.55
@@ -7141,7 +7153,7 @@
          CALL SVEG_COAWST (DEP2   ,IMATDA   ,ETOT   ,SMEBRK    ,          40.58 40.55
      &              KWAVE,  KMESPC   ,PLVEGT                   ,          40.58 40.55
      &              IDCMIN ,IDCMAX   ,ISSTOP ,DISSC1           ,          40.55
-     &              ABRBOT                                     ,          40.55
+     &              ABRBOT ,UBOT                               ,          40.55
      &              NPLA2  ,NPHT2    ,NPDA2  ,NPTK2            ,          40.67 40.61 40.55
      &              CDVEG_COAWST, KC_COAWST, Q_COAWST)
       END IF                                                              40.55

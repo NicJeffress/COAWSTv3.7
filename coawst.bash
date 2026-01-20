@@ -121,7 +121,7 @@ done
 # Set the CPP option defining the particular application. This will
 # determine the name of the ".h" header file with the application
 # CPP definitions. Also this will activate the switch file for WW3.
-export   COAWST_APPLICATION=MOOREA_NORTH_A9
+export   COAWST_APPLICATION=MNSWAN_T_MASTER
 
 # Set the ROMS_APPLICATION to be the same as the COAWST_APP.
 # Do not change this. We use the COAWST APP for other checks.
@@ -129,8 +129,9 @@ export   ROMS_APPLICATION=${COAWST_APPLICATION}
 
 # Set a local environmental variable to define the path to the directories
 # where all this project's files are kept.
-export   MY_ROOT_DIR=/hpc/home/nsj9/COAWSTv3.7
-export   MY_PROJECT_DIR=/work/nsj9/ProjNJ/Moorea_North_A9
+export   MY_ROOT_DIR=/Users/nicolasjeffress/COAWSTv3.7
+export   MY_PROJECT_DIR=/Users/nicolasjeffress/Documents/Projects_COAWST_SWAN/MNSWAN_T/MNSWAN_T_Master
+
 
 # The path to the user's local current ROMS source code.
 # If using svn locally, this would be the user's Working Copy Path (WCPATH).
@@ -202,7 +203,7 @@ export   NETCDF_CONFIG=/usr/bin/nf-config
 # conditional if-statements.
 
  export           USE_MPI=on            # distributed-memory parallelism
- export        USE_MPIF90=on            # compile with mpif90 script
+# export        USE_MPIF90=on            # compile with mpif90 script
 #export         which_MPI=mpich         # compile with MPICH library
 #export         which_MPI=mpich2        # compile with MPICH2 library
  export         which_MPI=openmpi       # compile with OpenMPI library

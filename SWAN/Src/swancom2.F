@@ -298,7 +298,7 @@
 !
       REAL     AKN    ,XDUM   ,KD     ,SBOTEO,FACB  ,
      &         CFW    ,FW     ,CURR   ,UC    ,ABRBOT,
-     &         ADUM   ,CDUM   ,DDUM
+     &         ADUM   ,CDUM   ,DDUM   ,KC_J  ,FW_J
       REAL     CFBOT(MSC)
       REAL     DSP    ,ETOT   ,EEX    ,EEY   ,EAD
       REAL     S      ,D      ,PHI    ,THETA ,                            41.51
@@ -391,7 +391,7 @@
           CFBOT =  UBOT(KCGRD(1)) * FW / (SQRT(2.) * GRAV)
         ELSEIF (IBOT.EQ.6) THEN
 !
-!             *** SWART model ***
+!             *** SWART model *************************
 !
           IF (VARFR) THEN                                                 20.68
             AKN = FRCOEF(KCGRD(1))
@@ -403,32 +403,140 @@
 !           *** AKN = PBOT(5) = [kn]  (roughness) ***
 !
           IF ( (ABRBOT / AKN ) .GT. 0.0369 ) THEN
-!            XDUM = PBOT(4) + LOG10 ( ABRBOT / AKN )
-!    !
-!    !               *** solving the implicit equation using a Newton ***
-!    !               *** Rapshon iteration proces : a + log a = b     ***
-!    !               *** the start value for ADUM = 0.3 because 0.3626 ***
-!    !               *** is the minimum value of ADUM with b=-0.08.    ***
-!    !
-!        ADUM = 0.3
-!        DO 1128 J = 1, 50
-!          CDUM  = ADUM
-!          DDUM  = ( ADUM + LOG10(ADUM) - XDUM ) /
-!     &                                          ( 1.+ ( 1. / ADUM) )
-!          ADUM  = ADUM - DDUM
-!          IF ( ABS(CDUM - ADUM) .LT. 1.E-4 ) GOTO 1129
-!1128        CONTINUE
-!          WRITE(*,*) ' error in iteration fw: Madsen formulation'
-!1129        CONTINUE
-!                                                 1               1
-!               *** computation of FW -->  A = ----- --> FW = -----
-!                                              4 uFW          16 A**2
-!             FW = 1. / (16. * ADUM**2)
+
          FW = EXP(5.213*(ABRBOT / AKN)**(-0.194) + (-5.977))
           ELSE
              FW = 50
           ENDIF
             CFBOT =  UBOT(KCGRD(1)) * FW / (SQRT(2.) * GRAV)
+!
+        ELSEIF (IBOT.EQ.8) THEN
+!
+!             *** SWART model:fenm *************************
+!
+          IF (VARFR) THEN                                                 20.68
+            AKN = FRCOEF(KCGRD(1))
+          ELSE
+            AKN = PBOT(5)
+          ENDIF
+!
+!         *** Frequency-independent friction coefficient ***
+!
+          IF ( (ABRBOT / AKN ) .GT. 0.0369 ) THEN
+         FW = EXP(5.213*(ABRBOT / AKN)**(-0.194) + (-5.977))
+          ELSE
+             FW = 50
+          ENDIF
+!
+!         *** Frequency-dependent friction coefficient ***
+!
+          DO IS = 1, MSC
+            ! Compute dimensionless parameter: U_bot / (omega * k_n)
+            KC_J = UBOT(KCGRD(1)) / (SPCSIG(IS) * AKN)
+            KC_J = MAX(KC_J, 1.0D-10)            
+            IF (KC_J .GT. 0.0369) THEN
+              FW_J = EXP(5.213*KC_J**(-0.194) + (-5.977))
+            ELSE
+              FW_J = 50.0
+            ENDIF
+            ! Store frequency-dependent friction coefficient
+            CFBOT(IS) = UBOT(KCGRD(1)) * SQRT(FW)*SQRT(FW_J) / 
+     &                  (SQRT(2.) * GRAV)
+          ENDDO
+!
+          ELSEIF (IBOT.EQ.7) THEN
+!
+!             *** Madsen 1994 model NJ Nic J Nicolas Jeffress ***
+!
+          IF (VARFR) THEN                                                 20.68
+            AKN = FRCOEF(KCGRD(1))
+          ELSE
+            AKN = PBOT(5)
+          ENDIF
+
+      IF ( (ABRBOT / AKN ) .LT. 0.2D0 ) THEN
+          FW = EXP(7.02D0*(0.2D0)**(-0.078D0) + (-8.82D0)) *
+     &           COS((33.0D0 - 6.0D0*LOG10((ABRBOT / AKN ))) *
+     &           PI/180.0D0)
+      ELSEIF ( (ABRBOT / AKN ) .GE. 0.2D0 .AND.
+     &           (ABRBOT / AKN ) .LT. 1.0D2 ) THEN
+          FW = EXP(7.02D0*((ABRBOT / AKN ))**(-0.078D0) +
+     &           (-8.82D0)) * COS((33.0D0 - 6.0D0*LOG10((ABRBOT /
+     &           AKN ))) * PI/180.0D0)
+      ELSEIF ( (ABRBOT / AKN ) .GE. 1.0D2 .AND.
+     &           (ABRBOT / AKN ) .LE. 1.0D4 ) THEN
+          FW = EXP(5.61D0*((ABRBOT / AKN ))**(-0.109D0) +
+     &           (-7.30D0)) * COS((33.0D0 - 6.0D0*LOG10((ABRBOT /
+     &           AKN ))) * PI/180.0D0)
+      ELSE
+          FW = EXP(5.61D0*(1.0D4)**(-0.109D0) + (-7.30D0)) *
+     &           COS((33.0D0 - 6.0D0*LOG10((ABRBOT / AKN ))) *
+     &           PI/180.0D0)
+      ENDIF
+            CFBOT =  UBOT(KCGRD(1)) * FW / (SQRT(2.) * GRAV)
+!
+          ELSEIF (IBOT.EQ.9) THEN
+!
+!             *** Madsen 1994 model NJ Nic J Nicolas Jeffress fenm ***
+!
+          IF (VARFR) THEN                                                 20.68
+            AKN = FRCOEF(KCGRD(1))
+          ELSE
+            AKN = PBOT(5)
+          ENDIF
+!         *** Check if UBOT is large enough for friction ***
+!
+!!!!!!!! quick check
+!          IF (UBOT(KCGRD(1)) .LT. 1.0D-6) THEN
+!           No friction if velocity is essentially zero
+!            DO IS = 1, MSC
+!              CFBOT(IS) = 0.0D0
+!            ENDDO
+!          ELSE          
+
+      IF ( (ABRBOT / AKN ) .LT. 0.2D0 ) THEN
+          FW = EXP(7.02D0*(0.2D0)**(-0.078D0) + (-8.82D0)) *
+     &           COS((33.0D0 - 6.0D0*LOG10((ABRBOT / AKN ))) *
+     &           PI/180.0D0)
+      ELSEIF ( (ABRBOT / AKN ) .GE. 0.2D0 .AND.
+     &           (ABRBOT / AKN ) .LT. 1.0D2 ) THEN
+          FW = EXP(7.02D0*((ABRBOT / AKN ))**(-0.078D0) +
+     &           (-8.82D0)) * COS((33.0D0 - 6.0D0*LOG10((ABRBOT /
+     &           AKN ))) * PI/180.0D0)
+      ELSEIF ( (ABRBOT / AKN ) .GE. 1.0D2 .AND.
+     &           (ABRBOT / AKN ) .LE. 1.0D4 ) THEN
+          FW = EXP(5.61D0*((ABRBOT / AKN ))**(-0.109D0) +
+     &           (-7.30D0)) * COS((33.0D0 - 6.0D0*LOG10((ABRBOT /
+     &           AKN ))) * PI/180.0D0)
+      ELSE
+          FW = EXP(5.61D0*(1.0D4)**(-0.109D0) + (-7.30D0)) *
+     &           COS((33.0D0 - 6.0D0*LOG10((ABRBOT / AKN ))) *
+     &           PI/180.0D0)
+      ENDIF
+!         *** Frequency-dependent friction coefficient ***
+!
+          DO IS = 1, MSC
+            KC_J = UBOT(KCGRD(1)) / (SPCSIG(IS) * AKN)
+            KC_J = MAX(KC_J, 1.0D-10)
+            IF (KC_J .LT. 0.2D0) THEN
+              FW_J = EXP(7.02D0*(0.2D0)**(-0.078D0) + (-8.82D0)) *
+     &               COS((33.0D0 - 6.0D0*LOG10(0.2D0)) *
+     &               PI/180.0D0)
+            ELSEIF (KC_J .GE. 0.2D0 .AND. KC_J .LT. 1.0D2) THEN
+              FW_J = EXP(7.02D0*(KC_J)**(-0.078D0) + (-8.82D0)) *
+     &               COS((33.0D0 - 6.0D0*LOG10(KC_J)) * PI/180.0D0)
+            ELSEIF (KC_J .GE. 1.0D2 .AND. KC_J .LE. 1.0D4) THEN
+              FW_J = EXP(5.61D0*(KC_J)**(-0.109D0) + (-7.30D0)) *
+     &               COS((33.0D0 - 6.0D0*LOG10(KC_J)) * PI/180.0D0)
+            ELSE
+              FW_J = EXP(5.61D0*(1.0D4)**(-0.109D0) + (-7.30D0)) *
+     &               COS((33.0D0 - 6.0D0*LOG10(1.0D4)) * PI/180.0D0)
+            ENDIF
+            
+            CFBOT(IS) = UBOT(KCGRD(1)) * SQRT(FW)*SQRT(FW_J) / 
+     &                  (SQRT(2.) * GRAV)     
+          ENDDO               
+!!!!!!!!done changing here
         ELSEIF ( IBOT.EQ.4 ) THEN
 !
 !            *** Jonswap model with variable friction coefficient  ***
@@ -1064,7 +1172,7 @@
       SUBROUTINE SVEG_COAWST ( DEP2   ,IMATDA   ,ETOT ,SMEBRK,
      &                  KWAVE  ,KMESPC   ,PLVEGT             ,
      &                  IDCMIN ,IDCMAX   ,ISSTOP ,DISSC1     ,
-     &                  ABRBOT                               ,
+     &                  ABRBOT ,UBOT                         ,
      &                  NPLA2  ,NPHT2    ,NPDA2  ,NPTK2      ,
      &                  CDVEG_COAWST, KC_COAWST, Q_COAWST )
 !
@@ -1283,6 +1391,8 @@
      &        KC_COAWST(MCGRD), 
      &        Q_COAWST(MCGRD)
       REAL    ETOT, SMEBRK, KMESPC, ABRBOT
+      REAL    UBOT(MCGRD)          
+      
 !
 !  5. Parameter variables
 !
@@ -1327,14 +1437,25 @@
       INTEGER ID, IDDUM, IENT, IK, IL, IS
       REAL    A, B, C, D, KD, KVEGH, LAYPRT, SINHK, SLAYH,
      &        SLAYH1, SLAYH2, SVEG1, SVEG2
-      REAL    VEGDIL_LOC, VEGTHK_LOC, VEGHGT_LOC 
-      REAL    LBYWE 
+      REAL    VEGDIL_LOC, VEGTHK_LOC, VEGHGT_LOC, VEGDNS_LOC
+      REAL    LBYWE
       REAL    DZ, EKZ, KC, KZ, MU, ZDH, ZH
       REAL    CAUCHY_NUM, KC_NUM, REY_NUM
       REAL    CFF1, CFF2, CFF3, LAYH_RAT 
       REAL    ALP, ORBVEL, SMA, Q, VEGDRL_CAL  
       REAL    SVEGDR
       REAL    DCIP(0:NIP,MSC), FDD(MSC), SVEGET(MSC)
+      REAL    CD_KC58NJ
+      REAL    CM_NJ, CF_NJ, CD_NJ
+      REAL    LAMBDA_F_NJ, LAMBDA_P_NJ, S_NJ
+      REAL    ALPHA_I_NJ, ALPHA_C_NJ, ALPHA_NJ, BASIC_NJ
+      REAL    ALPHA
+      REAL    ALPHA_NJ_R              ! Bulk alpha
+      REAL    ALPHA_NJ_NM(MSC)        ! Frequency-dependent alpha
+      REAL    KC_NUM_NM(MSC)          ! Frequency-dependent KC number (small kc)
+      REAL    BASIC_NJ_NM             ! For frequency-dependent calculation
+      REAL    SVEG1_IS, SVEG2_IS, KD_IS  ! For frequency loop
+      REAL    KC_NUM_R                ! NJ bulk KC number (small kc)                  
 !
 ! Viscosity of water
 !       
@@ -1365,6 +1486,7 @@
       VEGDIL_LOC = NPDA2(KCGRD(1))
       VEGTHK_LOC = NPTK2(KCGRD(1))
       VEGHGT_LOC = NPHT2(KCGRD(1))
+      VEGDNS_LOC = NPLA2(KCGRD(1))
       SLAYH      = VEGHGT_LOC
       KD     = KMESPC * DEP2(KCGRD(1))
 
@@ -1399,10 +1521,10 @@
         ORBVEL     = ( SQRT(2*ETOT)*SMEBRK*COSH(KD*ALP)/SINH(KD) )
 #       endif 
 !
-! Keulegan Carpenter number. 
+! Keulegan Carpenter number. This is big KC (KC=U*T/diameter)
 !
         KC_NUM   = ( SQRT(2.*ETOT)*SMEBRK*COSH(KD*ALP)/ 
-     &                   SINH(KD) )*(2.*pi/SMEBRK)/VEGDIL_LOC
+     &                   SINH(KD) )*(2.*PI/SMEBRK)/VEGDIL_LOC
         KC_NUM   = MIN(KC_NUM, MAX_EPS)
 !
 ! Compute Reynolds number.
@@ -1410,20 +1532,127 @@
         REY_NUM  = ( SQRT(2.*ETOT)*SMEBRK*COSH(KD*ALP)/
      &                   SINH(KD) )*VEGDIL_LOC/NU  
         REY_NUM   = MIN(REY_NUM, MAX_EPS)
+!
+!NJ Nic J Nic Jeffress changes here
+! Compute NJ's own KC (ab/b), the other KC is big KC and i dont want to mess with it
+        KC_NUM_R = ABRBOT * COSH(KD*ALP) / VEGDIL_LOC
+        KC_NUM_R = MIN(KC_NUM_R, MAX_EPS)        
+!Compute Cd KC58 extension
+!
+!        IF (KC_NUM.GT.12.4873) THEN
+!            CD_KC58NJ = 2.942 * EXP(-0.09166 * KC_NUM) + 1.2253
+!        ELSEIF (KC_NUM.LE.12.4873 .AND. KC_NUM.GT.7.75) THEN
+!            CD_KC58NJ = -0.04838 * (KC_NUM - 11.6)**2.0 + 2.2
+!        ELSE
+!            CD_KC58NJ = MAX(KC_NUM**0.8324 * 10.0**(-0.5689), MIN_EPS)
+!        END IF
+!
+!NJ Nic J Nic Jeffress changes here
+!Compute Cd KC58 extension:
+! originally for big KC, now converted to small KC form
+!
+        IF (KC_NUM_R.GT.12.4873D0/(2.0D0*PI)) THEN
+            CD_KC58NJ = 2.942D0 * EXP(-0.09166D0 * 2.0D0*PI*KC_NUM_R) 
+     1                  + 1.2253D0
+        ELSEIF (KC_NUM_R.LE.12.4873D0/(2.0D0*PI) .AND. 
+     1          KC_NUM_R.GT.7.75D0/(2.0D0*PI)) THEN
+            CD_KC58NJ = -0.04838D0 * (2.0D0*PI*KC_NUM_R - 11.6D0)**2.0 
+     1                  + 2.2D0
+        ELSE
+            CD_KC58NJ = MAX((2.0D0*PI*KC_NUM_R)**0.8324D0 * 
+     1                  10.0D0**(-0.5689D0), MIN_EPS)
+        END IF        
+!
+!NJ Nic J Nic Jeffress changes continue
+!Compute alpha_NJ. Originally in terms of big KC
+!now converted to small kc
+! og values from Lowe 2005, Cm=2, Cf=0.025, cd=2.5
+! kc58: cd asymptotes out to 1.2253
+        CM_NJ=2.
+        CF_NJ=0.025
+        CD_NJ=1.2253
 
-        IF    ( VEGDRL(1).eq.1. ) THEN 
+        IF    ( VEGDRL(1).eq.8. ) THEN
+           CF_NJ=0.012
+        ELSEIF( VEGDRL(1).eq.9. ) THEN
+           CF_NJ=0.024
+        ELSEIF( VEGDRL(1).eq.10. ) THEN
+           CF_NJ=0.006         
+        ENDIF
+        
+        LAMBDA_F_NJ = VEGDIL_LOC * VEGHGT_LOC * VEGDNS_LOC
+        LAMBDA_P_NJ = (PI/4.0) * (VEGDIL_LOC**2.0) * VEGDNS_LOC
+        IF (NPLA2(KCGRD(1)).GT.0.)THEN
+            S_NJ = (1.0/(SQRT(NPLA2(KCGRD(1))))) - VEGDIL_LOC
+        ENDIF
+        ALPHA_I_NJ = (1.0 - LAMBDA_P_NJ) / (1.0+(CM_NJ-1.0)*LAMBDA_P_NJ)
+        ALPHA_C_NJ = SQRT((CF_NJ/CD_NJ)*( 1.0-LAMBDA_P_NJ)/LAMBDA_F_NJ)
+        ALPHA_C_NJ = MIN(ALPHA_C_NJ,ALPHA_I_NJ)
+!        BASIC_NJ = 0.5*(1.0+TANH(3.0*((LOG10(KC_NUM/
+!     &   (2.0*PI*S_NJ/VEGDIL_LOC)))-1.1)/2.0))
+        BASIC_NJ = 0.5*(1.0+TANH(3.0*((LOG10(KC_NUM_R/
+     &   (S_NJ/VEGDIL_LOC)))-1.1)/2.0))
+     
+        ALPHA_NJ_R=MIN(1.0,(ALPHA_C_NJ-ALPHA_I_NJ)*BASIC_NJ+ALPHA_I_NJ)
+!
+!       Now compute frequency-dependent ALPHA_NJ_NM
+! KCnum_nm is frequency dependent small kc
+!
+        DO IS = 1, MSC
+!         Compute frequency-specific KC number
+!          KC_NUM_NM(IS) = ( SQRT(2.*ETOT)*SMEBRK*COSH(KD*ALP)/ 
+!     1                      SINH(KD) )*(2.*PI/SPCSIG(IS))/VEGDIL_LOC
+          KC_NUM_NM(IS) = UBOT(KCGRD(1)) * COSH(KD*ALP) * 
+     1                    (SPCSIG(IS) / VEGDIL_LOC)     
+          KC_NUM_NM(IS) = MIN(KC_NUM_NM(IS), MAX_EPS)
+          KC_NUM_NM(IS) = MAX(KC_NUM_NM(IS), MIN_EPS)
+!
+!         Compute frequency-dependent BASIC_NJ: converted to small kc
+!          BASIC_NJ_NM = 0.5*(1.0+TANH(3.0*((LOG10(KC_NUM_NM(IS)/
+!     1     (2.0*PI*S_NJ/VEGDIL_LOC)))-1.1)/2.0))
+          BASIC_NJ_NM = 0.5*(1.0+TANH(3.0*((LOG10(KC_NUM_NM(IS)/
+     1     (S_NJ/VEGDIL_LOC)))-1.1)/2.0))     
+!
+!         Compute frequency-dependent alpha
+          ALPHA_NJ_NM(IS) = MIN(1.0,(ALPHA_C_NJ-ALPHA_I_NJ)*
+     1                      BASIC_NJ_NM+ALPHA_I_NJ)
+        ENDDO        
+!NJ Nic J Nic Jeffress changes end here
+        IF    ( VEGDRL(1).eq.1. ) THEN
            VEGDRL_CAL   = 1.
-        ELSEIF( VEGDRL(1).eq.2. ) THEN        
+           ALPHA = 1.0
+        ELSEIF( VEGDRL(1).eq.2. ) THEN
            Q            = MIN(KC_NUM/(ALP**0.76), MAX_EPS)
            VEGDRL_CAL   = MIN(EXP(-0.0138*Q)/(Q**0.3),MAX_EPS)
+           ALPHA = 1.0
         ELSEIF( VEGDRL(1).eq.3. ) THEN
-!NJ NIC JEFFRESS adding cd(KC)
-             IF (KC_NUM.LT.13.) THEN
-               VEGDRL_CAL   = MAX(2.2+-0.02018*(KC_NUM-11.5)**2, 1.0)
-             ELSE
-               VEGDRL_CAL   = MAX(1.24+2.942*EXP(-0.09166*KC_NUM), 1.0)
-             ENDIF
-        ENDIF 
+!NJ NIC JEFFRESS adding cd(KC) and constant alpha
+           VEGDRL_CAL   = CD_KC58NJ
+           ALPHA = 1.0
+        ELSEIF( VEGDRL(1).eq.4. ) THEN
+!NJ NIC JEFFRESS adding variable alpha and constant cd
+           VEGDRL_CAL   = 1.
+           ALPHA = ALPHA_NJ_R
+!       PRINT *,'Alpha = ',ALPHA
+        ELSEIF( VEGDRL(1).eq.5. ) THEN
+!NJ NIC JEFFRESS adding variable alpha and variable cd
+           VEGDRL_CAL   = CD_KC58NJ
+           ALPHA = ALPHA_NJ_R
+        ELSEIF( VEGDRL(1).eq.6. ) THEN
+!NJ NIC JEFFRESS freq-dependent alpha, constant cd
+           VEGDRL_CAL   = 1.
+           ALPHA = 1.0  ! Placeholder, will use ALPHA_NJ_NM(IS)
+        ELSEIF( VEGDRL(1).eq.7. ) THEN
+!NJ NIC JEFFRESS freq-dependent alpha, variable cd
+           VEGDRL_CAL   = CD_KC58NJ
+           ALPHA = 1.0  ! Placeholder, will use ALPHA_NJ_NM(IS)
+!        ELSEIF( VEGDRL(1).eq.8 .OR. VEGDRL(1).eq.9 .OR. VEGDRL(1).eq.10) THEN
+         ELSE IF (VEGDRL(1).EQ.8 .OR. VEGDRL(1).EQ.9 .OR.
+     &            VEGDRL(1).EQ.10) THEN        
+!NJ NIC JEFFRESS adding variable alpha_r and variable cd, with shear cf(1-alpha)
+           VEGDRL_CAL   = CD_KC58NJ
+           ALPHA = ALPHA_NJ_R                      
+        ENDIF
       ELSE IF ( DEP2(KCGRD(1)).LT.SLAYH ) THEN
         IF    ( VEGDRL(1).eq.1. ) THEN 
            VEGDRL_CAL   = 1.
@@ -1434,6 +1663,7 @@
 !
 !     --- store values for output, compute drag coefficient in vegetation
 !
+!       PRINT *,'CD = ',VEGDRL_CAL
         SVEGDR = VEGDRL_CAL
         CDVEG_COAWST(KCGRD(1))=MIN(SVEGDR, MAX_EPS)
         Q_COAWST(KCGRD(1))=Q
@@ -1453,7 +1683,8 @@
  
         IF ( KD.GT.10. ) RETURN
         C     = 3.*KMESPC*(COSH(KD))**3
-        SVEG1 = SQRT(2./PI) * GRAV**2 * (KMESPC/SMEBRK)**3*SQRT(ETOT)/C
+        SVEG1 = ALPHA**3 * SQRT(2./PI) * GRAV**2 *
+     &  (KMESPC/SMEBRK)**3*SQRT(ETOT)/C
 
         IF ( VARNPL ) SVEG1 = SVEG1 * NPLA2(KCGRD(1))
 
@@ -1496,8 +1727,26 @@
 !
 !     --- Jacobsen et al. (2019)
 !
-         SVEG1 = SQRT(2./PI)*(1/GRAV) * ALFU**3 *
-     &                        VEGDRL_CAL * VEGDIL_LOC 
+         SVEG1 = SQRT(2./PI)*(1/GRAV) * ALPHA**3 *
+     &                        VEGDRL_CAL * VEGDIL_LOC
+!NJ Nic Jeffress really messing with stuff here
+!        Adjust ALPHA power based on model
+         IF ( VEGDRL(1).eq.6 .OR. VEGDRL(1).eq.7 ) THEN
+!          Use only one power of ALPHA_R (blend approach)
+!          alpha_nm^2 is added later to dcip
+           SVEG1 = SQRT(2./PI)*(1/GRAV) * ALPHA_NJ_R *
+     1                          VEGDRL_CAL * VEGDIL_LOC
+!        ELSE IF (VEGDRL(1).eq.8 .OR. VEGDRL(1).eq.9 .OR. VEGDRL(1).eq.10) THEN
+         ELSE IF (VEGDRL(1).EQ.8 .OR. VEGDRL(1).EQ.9 .OR.
+     &            VEGDRL(1).EQ.10) THEN        
+           SVEG1 = SQRT(2./PI)*(1/GRAV) * ALPHA**3 *
+     1                          VEGDRL_CAL * VEGDIL_LOC             
+         ELSE
+!          Original: use ALPHA^3
+           SVEG1 = SQRT(2./PI)*(1/GRAV) * ALPHA**3 *
+     1                          VEGDRL_CAL * VEGDIL_LOC
+         ENDIF
+! NJ Nic Jeffress     
          IF ( VARNPL ) SVEG1 = SVEG1 * NPLA2(KCGRD(1))
 
 !        --- determine integration interval (submerged vegetation is assumed)
@@ -1556,16 +1805,32 @@
 
 !           --- compute frequency-distributed dissipation per integration point
 
-            DO IS = 1, ISSTOP
+!            DO IS = 1, ISSTOP
+!               DCIP(IK,IS) = C * FDD(IS) * SQRT(MU)
+!            END DO
+! NJ Nic Jeffress
+           DO IS = 1, ISSTOP
+!            Add frequency-dependent alpha^2 for blend models
+             IF ( VEGDRL(1).eq.6 .OR. VEGDRL(1).eq.7 ) THEN
+               DCIP(IK,IS) = C * FDD(IS) * SQRT(MU) * 
+     1                       ALPHA_NJ_NM(IS)**2
+             ELSE
                DCIP(IK,IS) = C * FDD(IS) * SQRT(MU)
-            END DO
+             ENDIF
+           END DO            
          END DO
 !
 ! --- compute dissipation per frequency
 !
+      IF ( (VEGDRL(1) .EQ. 8 .OR. VEGDRL(1) .EQ. 9 .OR. 
+     &      VEGDRL(1) .EQ. 10) .AND. NPLA2(KCGRD(1)) .GT. 0 ) THEN
          SVEGET = SVEG1 * SUM(DCIP,1) * DZ
+     &            + SQRT(2.0/PI) * (1.0/GRAV) * CF_NJ
+     &            * (1.0-ALPHA)**3 * SUM(DCIP,1)              
+      ELSE 
+         SVEGET = SVEG1 * SUM(DCIP,1) * DZ                  
+      ENDIF
       END IF
-
 !Outputting some stuff here -NJ
 !      PRINT *,'KCGRD = ',KCGRD(1)
 !      PRINT *,'DEP2 = ',DEP2(KCGRD(1))

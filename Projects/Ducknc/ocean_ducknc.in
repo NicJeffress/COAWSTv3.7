@@ -208,7 +208,7 @@ ad_Vadvection == C4       \                     ! temperature
 
 ! Adjoint-based algorithms can have different lateral boundary
 ! conditions keywords.
-
+ 
 ad_LBC(isFsur) ==   Cha     Per     Clo     Per         ! free-surface
 ad_LBC(isUbar) ==   Fla     Per     Clo     Per         ! 2D U-momentum
 ad_LBC(isVbar) ==   Fla     Per     Clo     Per         ! 2D U-momentum

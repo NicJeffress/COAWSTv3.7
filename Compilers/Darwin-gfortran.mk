@@ -33,8 +33,8 @@
 #
 # First the defaults
 #
-               FC := gfortran
-           FFLAGS := -frepack-arrays
+               FC := mpifort
+           FFLAGS := -frepack-arrays -fallow-argument-mismatch
        FIXEDFLAGS := -ffixed-form
         FREEFLAGS := -ffree-form -ffree-line-length-none
               CPP := /usr/bin/cpp
@@ -168,7 +168,7 @@ ifdef USE_MPI
  ifdef USE_MPIF90
                FC := mpif90
  else
-             LIBS += -lfmpi -lmpi
+#             LIBS += -lfmpi -lmpi
  endif
 endif
 
@@ -190,7 +190,7 @@ else
 endif
 
 ifdef USE_MPI
-           FFLAGS += -I/usr/include
+#           FFLAGS += -I/usr/include
 endif
 
 ifdef USE_ESMF

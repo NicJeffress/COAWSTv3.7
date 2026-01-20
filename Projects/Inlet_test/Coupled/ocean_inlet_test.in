@@ -73,7 +73,7 @@
 ! Input variable information file name.  This file needs to be processed
 ! first so all information arrays can be initialized properly.
 
-     VARNAME = ROMS/External/varinfo.dat
+     VARNAME = /Users/nicolasjeffress/COAWSTv3.7/ROMS/External/varinfo.dat
 
 ! Number of nested grids.
 
@@ -1002,7 +1002,7 @@ Dout(iTvdif) == F F     ! temp_vdiff, ...    vertical diffusion
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == Projects/Inlet_test/Coupled/inlet_test_grid.nc 
+     GRDNAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/inlet_test_grid.nc 
      ININAME == ocean_ini.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
@@ -1096,27 +1096,27 @@ Dout(iTvdif) == F F     ! temp_vdiff, ...    vertical diffusion
 
 ! Output NetCDF file names, [1:Ngrids].
 
-     DAINAME == Projects/Inlet_test/Coupled/output/ocean_dai.nc
-     GSTNAME == Projects/Inlet_test/Coupled/output/ocean_gst.nc
-     RSTNAME == Projects/Inlet_test/Coupled/output/ocean_rst.nc 
-     HISNAME == Projects/Inlet_test/Coupled/output/ocean_his_coupled.nc
-     QCKNAME == Projects/Inlet_test/Coupled/output/ocean_qck.nc
-     TLMNAME == Projects/Inlet_test/Coupled/output/ocean_tlm.nc
-     TLFNAME == Projects/Inlet_test/Coupled/output/ocean_tlf.nc
-     ADJNAME == Projects/Inlet_test/Coupled/output/ocean_adj.nc
-     AVGNAME == Projects/Inlet_test/Coupled/output/ocean_avg_coupled.nc
-     HARNAME == Projects/Inlet_test/Coupled/output/ocean_har.nc
-     DIANAME == Projects/Inlet_test/Coupled/output/ocean_dia.nc
-     STANAME == Projects/Inlet_test/Coupled/output/ocean_sta.nc
-     FLTNAME == Projects/Inlet_test/Coupled/output/ocean_flt.nc
+     DAINAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_dai.nc
+     GSTNAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_gst.nc
+     RSTNAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_rst.nc 
+     HISNAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_his_coupled.nc
+     QCKNAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_qck.nc
+     TLMNAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_tlm.nc
+     TLFNAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_tlf.nc
+     ADJNAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_adj.nc
+     AVGNAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_avg_coupled.nc
+     HARNAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_har.nc
+     DIANAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_dia.nc
+     STANAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_sta.nc
+     FLTNAME == /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/output/ocean_flt.nc
 
 ! Input ASCII parameter filenames.
 
      APARNAM =  ROMS/External/s4dvar.in
-     SPOSNAM =  Projects/Inlet_test/Coupled/stations_inlet_test.in
+     SPOSNAM =  /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/stations_inlet_test.in
      FPOSNAM =  ROMS/External/floats.in
      BPARNAM =  ROMS/External/bioFasham.in
-     SPARNAM =  Projects/Inlet_test/Coupled/sediment_inlet_test.in 
+     SPARNAM =  /Users/nicolasjeffress/COAWSTv3.7/Projects/Inlet_test/Coupled/sediment_inlet_test.in 
      USRNAME =  ROMS/External/MyFile.dat
      VEGNAM  =  vegetation.in
 

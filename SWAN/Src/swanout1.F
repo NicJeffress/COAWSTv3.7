@@ -3774,7 +3774,10 @@
             IF (IBOT.EQ.1) F1 = PBOT(3)
             IF (IBOT.EQ.2) F1 = PBOT(2)
             IF (IBOT.EQ.3) F1 = PBOT(5)
-            IF (IBOT.EQ.6) F1 = PBOT(5) 
+            IF (IBOT.EQ.6) F1 = PBOT(5)
+            IF (IBOT.EQ.7) F1 = PBOT(5)
+            IF (IBOT.EQ.8) F1 = PBOT(5)
+            IF (IBOT.EQ.9) F1 = PBOT(5)
             IF (IBOT.EQ.5) F1 = PBOT(7)                                   41.51
             DO IP = 1, MIP
                IF (.NOT.EQREAL(F1,OVEXCV(27))) VOQ(IP,VOQR(27))=F1

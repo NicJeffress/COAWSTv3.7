@@ -1870,6 +1870,14 @@
           cff2=PBOT(2)
         ELSE IF (IBOT.EQ.3) THEN      ! Madsen
           cff2=PBOT(5)
+        ELSE IF (IBOT.EQ.6) THEN      ! Madsen
+          cff2=PBOT(5)
+        ELSE IF (IBOT.EQ.7) THEN      ! Madsen
+          cff2=PBOT(5)
+        ELSE IF (IBOT.EQ.8) THEN      ! Madsen
+          cff2=PBOT(5)
+        ELSE IF (IBOT.EQ.9) THEN      ! Madsen
+          cff2=PBOT(5)
         END IF
 # endif
         IP=0

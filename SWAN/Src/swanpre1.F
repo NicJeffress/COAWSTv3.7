@@ -2736,8 +2736,19 @@
 !swart 1974 i think
 !edited on 4/19/23
 !this is going to be similar to the madsen routine
-        ELSE IF (KEYWIS('SWA')) THEN
+        ELSE IF (KEYWIS('S74FER')) THEN
           IBOT = 6
+          CALL INREAL('KN',PBOT(5),'UNC',0.)
+        ELSE IF (KEYWIS('S74FENM')) THEN
+          IBOT = 8
+          CALL INREAL('KN',PBOT(5),'UNC',0.)
+!NJ Nic Jeffress adding the possibility of a madsen 1994 equation
+!this is going to be similar to the madsen routine
+        ELSE IF (KEYWIS('M95FER')) THEN
+          IBOT = 7
+          CALL INREAL('KN',PBOT(5),'UNC',0.)
+        ELSE IF (KEYWIS('M95FENM')) THEN
+          IBOT = 9
           CALL INREAL('KN',PBOT(5),'UNC',0.)
         ELSE
           CALL WRNKEY
